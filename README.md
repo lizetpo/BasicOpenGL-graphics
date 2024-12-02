@@ -4,34 +4,51 @@
 ## How to install "make" command and C/C++ compilers:
 
 
-### For Windows:
+### For Windows (make):
+
+
+#### Option 1 (Install with `Chocolatey`):
 
 1. Install `Chocolatey` from following website: \
    https://chocolatey.org/install
 
-2. After finishing the installation run the following command on the CMD (Run as adimistrator):
+2. After finishing the installation intall `make` using the following command on the CMD (Run as adimistrator):
    ```
    choco install make
    ```
 
-3. To install the C/C++ compilers go to the following website: \
+
+#### Option 2 (Install with `MSYS2`):
+
+1. Install `MSYS2` from the following website: \
+   https://www.msys2.org/
+
+2. Open `MSYS2` and intall `make` using the following command (on the opened console):
+   ```
+   pacman -S make
+   ```
+
+
+### For Windows (C/C++ compilers):
+
+1. Go to the following website: \
    https://code.visualstudio.com/docs/cpp/config-mingw
 
-4. Follow the guide on how to install the C/C++ Compiler and validate that they are installed by running the following commands on the CMD:
+2. Follow the guide on how to install the C/C++ compilers and validate that they are installed by using the following commands on the CMD:
    ```
    gcc --version
    g++ --version
    ```
 
 
-### For MacOS:
+### For MacOS (make `+` C/C++ compilers):
 
 1. Install `Xcode Command Line Tools` using the following command on the Terminal:
    ```
    xcode-select --install
    ```
 
-2. (Optional) Install `brew` from following website: \
+2. (Optional) Install `brew` from the following website: \
    https://brew.sh/
 
 3. (Optional) Install with `brew` the `GLFW` library using the following command on the Terminal:
@@ -40,7 +57,7 @@
    ```
 
 
-## For Linux:
+## For Linux (make `+` C/C++ compilers):
 
 1. (Optional) Update the Linux OS using the following command on the Terminal:
    ```
