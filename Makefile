@@ -53,7 +53,7 @@ copy_res_m:
 # Copy library and resources (Windows)
 copy_lib_w:
 	@echo "Copying library for Windows..."
-	copy /Y ${workspaceFolder}\lib\windows\glfw3.dll ${workspaceFolder}\bin\glfw3.dll
+	xcopy /D /I ${workspaceFolder}\lib\windows\glfw3.dll ${workspaceFolder}\bin\
 
 copy_res_w:
 	@echo "Copying resources for Windows..."
