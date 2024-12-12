@@ -109,16 +109,14 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
     glm::vec3 diffuse(0.0f);
     glm::vec3 specular(0.0f);
 
-     for (const auto &light : scene.lights) {
-        glm::vec3 lightDir;
-        glm::vec3 lightPos;
+    for (const auto &light : scene.lights) {
+        glm::vec3 lightDir = glm::normalize(light->getDirection(hitPoint));
 
-        //todo: add shadows 
-        // Diffuse lighting: Only apply if not shadowed
+    
+        // Diffuse lighting
         float diff = glm::max(glm::dot(normal, lightDir), 0.0f);
         diffuse += material.diffuse * light->intensity * diff;
-
-        // Specular lighting: Only apply if not shadowed
+        
         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
         specular += material.specular * light->intensity * spec;
