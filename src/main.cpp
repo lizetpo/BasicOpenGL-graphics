@@ -1,44 +1,40 @@
+#include "Scene.h"      // Include the Scene class
+#include "Loader.h"     // Include the Loader class
+#include "Renderer.h"   // Include the Renderer class
+#include <glm/glm.hpp>  // For glm::vec3
+#include <vector>       // For std::vector
+#include <iostream>     // For std::cout and std::cerr
 
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <glm/glm.hpp>
-#include "Scene.h"
-#include "Renderer.h"
-#include "Loader.h"
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h" // Include stb_image_write for PNG output
+
+const int WIDTH = 800; // Define the image width
+const int HEIGHT = 800; // Define the image height
 
 int main() {
-    // 1. Scene Configuration
+    // Setup Scene
     Scene scene(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.0f, 5.0f));
+    Loader::loadScene("C:/dev/BasicOpenGL-graphics/src/scene1.txt", scene); // Adjust the path to the scene file
 
-    // 2. Load Objects and Lights from Scene File
-std::string sceneFile = "C:/dev/BasicOpenGL-graphics/src/scene1.txt";
-    Loader::loadScene(sceneFile, scene); // Use your Loader class to parse the scene
+    // Setup Renderer
+    Renderer renderer(scene, WIDTH, HEIGHT, 5);
+    std::vector<glm::vec3> imageBuffer(WIDTH * HEIGHT); // Create the image buffer
+    renderer.render(imageBuffer); // Perform the rendering
 
-    // 3. Renderer Configuration
-    int imageWidth = 800;
-    int imageHeight = 800;
-    int maxRecursionDepth = 5; // Maximum depth for reflections and transparency
-    Renderer renderer(scene, imageWidth, imageHeight, maxRecursionDepth);
+    // Convert imageBuffer to unsigned char array for PNG output
+    std::vector<unsigned char> pixelData(WIDTH * HEIGHT * 3);
+    for (int i = 0; i < WIDTH * HEIGHT; ++i) {
+        pixelData[i * 3 + 0] = static_cast<unsigned char>(glm::clamp(imageBuffer[i].r, 0.0f, 1.0f) * 255.0f);
+        pixelData[i * 3 + 1] = static_cast<unsigned char>(glm::clamp(imageBuffer[i].g, 0.0f, 1.0f) * 255.0f);
+        pixelData[i * 3 + 2] = static_cast<unsigned char>(glm::clamp(imageBuffer[i].b, 0.0f, 1.0f) * 255.0f);
+    }
 
-    // 4. Render Image
-    std::vector<glm::vec3> imageBuffer(imageWidth * imageHeight); // Buffer to store pixel colors
-    renderer.render(imageBuffer);
-
-    // 5. Save Image
-    std::ofstream imageFile("output.ppm");
-    if (imageFile.is_open()) {
-        imageFile << "P3\n" << imageWidth << " " << imageHeight << "\n255\n";
-        for (const auto &color : imageBuffer) {
-            int r = static_cast<int>(glm::clamp(color.r, 0.0f, 1.0f) * 255.0f);
-            int g = static_cast<int>(glm::clamp(color.g, 0.0f, 1.0f) * 255.0f);
-            int b = static_cast<int>(glm::clamp(color.b, 0.0f, 1.0f) * 255.0f);
-            imageFile << r << " " << g << " " << b << "\n";
-        }
-        imageFile.close();
-        std::cout << "Image saved as output.ppm\n";
+    // Save as PNG
+    const char* outputFilename = "output.png"; // Output filename
+    if (stbi_write_png(outputFilename, WIDTH, HEIGHT, 3, pixelData.data(), WIDTH * 3)) {
+        std::cout << "Image saved as " << outputFilename << std::endl;
     } else {
-        std::cerr << "Failed to save the image.\n";
+        std::cerr << "Failed to save image." << std::endl;
     }
 
     return 0;

@@ -35,43 +35,57 @@ glm::vec3 Renderer::trace(const Ray &ray, int depth) {
     glm::vec3 color = glm::vec3(0.0f); // Initialize color to black
 
     if (dynamic_cast<Plane *>(scene.objects[hitObjectIndex].get())) {
-        material.diffuse = computeCheckerboardColor(material.diffuse, hitPoint);
+        material.ambient = computeCheckerboardColor(material.ambient, hitPoint);
     }
 
     color = computePhongLighting(hitPoint, normal, viewDir, material);
 
-    if (material.specular != glm::vec3(0.0f)) {
-        glm::vec3 reflectDir = glm::reflect(ray.direction, normal);
-        Ray reflectedRay(hitPoint + 1e-4f * reflectDir, reflectDir);
-        color += trace(reflectedRay, depth - 1) * material.specular;
-    }
+    // if (material.specular != glm::vec3(0.0f)) {
+    //     glm::vec3 reflectDir = glm::reflect(ray.direction, normal);
+    //     Ray reflectedRay(hitPoint + 1e-4f * reflectDir, reflectDir);
+    //     color += trace(reflectedRay, depth - 1) * material.specular;
+    // }
 
-    if (material.transparency > 0.0f) {
-        float eta = 1.0f / 1.5f;
-        if (glm::dot(ray.direction, normal) > 0.0f) {
-            normal = -normal;
-            eta = 1.5f / 1.0f;
-        }
-        glm::vec3 refractDir = glm::refract(ray.direction, normal, eta);
-        Ray refractedRay(hitPoint + 1e-4f * refractDir, refractDir);
-        color += trace(refractedRay, depth - 1) * material.transparency;
-    }
+    // if (material.transparency > 0.0f) {
+    //     float eta = 1.0f / 1.5f;
+    //     if (glm::dot(ray.direction, normal) > 0.0f) {
+    //         normal = -normal;
+    //         eta = 1.5f / 1.0f;
+    //     }
+    //     glm::vec3 refractDir = glm::refract(ray.direction, normal, eta);
+    //     Ray refractedRay(hitPoint + 1e-4f * refractDir, refractDir);
+    //     color += trace(refractedRay, depth - 1) * material.transparency;
+    // }
 
     return glm::clamp(color, 0.0f, 1.0f);
 }
 
 glm::vec3 Renderer::computeCheckerboardColor(const glm::vec3 &baseColor, const glm::vec3 &hitPoint) {
-    float scale = 0.5f;
-    int checkX = static_cast<int>(floor(hitPoint.x / scale)) % 2;
-    int checkZ = static_cast<int>(floor(hitPoint.z / scale)) % 2;
-    bool isDark = (checkX + checkZ) % 2 == 0;
-    return isDark ? 0.5f * baseColor : baseColor;
+   float scaleParameter = 0.5f;
+    float checkerboard = 0;
+    if (hitPoint.x < 0) {
+        checkerboard += floor((0.5 - hitPoint.x) / scaleParameter);
+    } else {
+        checkerboard += floor(hitPoint.x / scaleParameter);
+    }
+    if (hitPoint.z < 0) {
+        checkerboard += floor((0.5 - hitPoint.z) / scaleParameter);
+    } else {
+        checkerboard += floor(hitPoint.z / scaleParameter);
+    }
+    checkerboard = (checkerboard * 0.5) - int(checkerboard * 0.5);
+    checkerboard *= 2;
+    return checkerboard > 0.5f ? 0.5f * baseColor : baseColor;
 }
 
 float Renderer::findNearestIntersection(const Ray &ray, glm::vec3 &hitPoint, glm::vec3 &normal,
                                          Material &material, int &hitObjectIndex) {
     float nearestT = FLT_MAX;
     hitObjectIndex = -1;
+
+    if (scene.objects.empty()) {
+        return nearestT;
+    }
 
     for (size_t i = 0; i < scene.objects.size(); ++i) {
         float t;
@@ -88,37 +102,27 @@ float Renderer::findNearestIntersection(const Ray &ray, glm::vec3 &hitPoint, glm
     return nearestT;
 }
 
+
 glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::vec3 &normal,
                                          const glm::vec3 &viewDir, const Material &material) {
     glm::vec3 ambient = scene.ambientLight * material.ambient;
     glm::vec3 diffuse(0.0f);
     glm::vec3 specular(0.0f);
 
-    for (const auto &light : scene.lights) {
-        glm::vec3 lightDir = glm::normalize(light->getDirection(hitPoint));
+     for (const auto &light : scene.lights) {
+        glm::vec3 lightDir;
+        glm::vec3 lightPos;
 
-        // Shadows
-        Ray shadowRay(hitPoint + 1e-4f * lightDir, lightDir);
-        bool isShadowed = false;
-        for (const auto &object : scene.objects) {
-            float t;
-            glm::vec3 n;
-            if (object->intersect(shadowRay, t, n)) {
-                isShadowed = true;
-                break;
-            }
-        }
-        if (isShadowed) continue;
-
-        // Diffuse
+        //todo: add shadows 
+        // Diffuse lighting: Only apply if not shadowed
         float diff = glm::max(glm::dot(normal, lightDir), 0.0f);
         diffuse += material.diffuse * light->intensity * diff;
 
-        // Specular
+        // Specular lighting: Only apply if not shadowed
         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
         specular += material.specular * light->intensity * spec;
     }
 
-    return ambient + diffuse + specular;
+    return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);
 }
