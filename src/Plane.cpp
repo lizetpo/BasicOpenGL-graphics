@@ -1,17 +1,20 @@
 #include "Plane.h"
 
 Plane::Plane(const glm::vec3 &n, float dVal, const Material &mat)
-    : Object(mat), normal(n), d(dVal) {}
+    : Object(mat), normal(glm::normalize(n)), d(dVal) {}  // Normalize once at creation
 
 // Intersection function
+// Intersection function
 bool Plane::intersect(const Ray &ray, float &t, glm::vec3 &normalOut) const {
-    float denom = glm::dot(ray.direction, glm::normalize(normal));
+    glm::vec3 normalizedNormal = glm::normalize(normal);  // Normalize the normal here
+    float denom = glm::dot(ray.direction, normalizedNormal);
     if (fabs(denom) > 1e-6) { // Ensure there's no division by zero
-        t = -(glm::dot(ray.origin, glm::normalize(normal)) + d) / denom;
+        t = -(glm::dot(ray.origin, normalizedNormal) + d) / denom;
         if (t >= 0) {  // Ensure intersection point is in front of the ray
-            normalOut = glm::normalize(normal);  // The plane normal at the intersection point
+            normalOut =  glm::normalize(-normalizedNormal); ;  // Normal at the intersection point
             return true;
         }
     }
     return false; // No intersection
 }
+
