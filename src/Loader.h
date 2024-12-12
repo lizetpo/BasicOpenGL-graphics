@@ -1,9 +1,12 @@
-#ifndef SCENEPARSER_H
-#define SCENEPARSER_H
+#ifndef LOADER_H
+#define LOADER_H
 
 #include <string>
 #include "Scene.h"
 
-void loadScene(const std::string &filename, Scene &scene);
+class Loader {
+public:
+    static void loadScene(const std::string &filename, Scene &scene);
+};
 
-#endif // SCENEPARSER_H
+#endif // LOADER_H

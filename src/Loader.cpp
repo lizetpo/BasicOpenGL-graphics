@@ -5,7 +5,7 @@
 #include "Sphere.h"
 #include "Plane.h"
 
-void loadScene(const std::string &filename, Scene &scene) {
+void Loader::loadScene(const std::string &filename, Scene &scene) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Failed to open scene file: " << filename << std::endl;
@@ -33,11 +33,11 @@ void loadScene(const std::string &filename, Scene &scene) {
             iss >> x >> y >> z >> r;
             if (r > 0) { // Sphere
                 scene.addObject(std::make_shared<Sphere>(
-                    glm::vec3(x, y, z), r, Material(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), 0.0f)
+                    glm::vec3(x, y, z), r, Material(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, 0.0f)
                 ));
             } else { // Plane
                 scene.addObject(std::make_shared<Plane>(
-                    glm::vec3(x, y, z), r, Material(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), 0.0f)
+                    glm::vec3(x, y, z), r, Material(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, 0.0f)
                 ));
             }
         } else if (type == 'c') { // Colors
@@ -45,7 +45,7 @@ void loadScene(const std::string &filename, Scene &scene) {
             iss >> r >> g >> b >> shininess;
             if (objectIndex < scene.objects.size()) {
                 scene.objects[objectIndex++]->material = Material(
-                    glm::vec3(r, g, b), glm::vec3(r, g, b), glm::vec3(0.7f), shininess
+                    glm::vec3(r, g, b), glm::vec3(r, g, b), glm::vec3(0.7f), shininess, 0.0f
                 );
             }
         } else if (type == 'd') { // Directional lights
