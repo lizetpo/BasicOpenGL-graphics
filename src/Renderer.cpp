@@ -103,6 +103,27 @@ float Renderer::findNearestIntersection(const Ray &ray, glm::vec3 &hitPoint, glm
 }
 
 
+// glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::vec3 &normal,
+//                                          const glm::vec3 &viewDir, const Material &material) {
+//     glm::vec3 ambient = scene.ambientLight * material.ambient;
+//     glm::vec3 diffuse(0.0f);
+//     glm::vec3 specular(0.0f);
+
+//     for (const auto &light : scene.lights) {
+//         glm::vec3 lightDir = glm::normalize(light->getDirection(hitPoint));
+
+    
+//         // Diffuse lighting
+//         float diff = glm::max(glm::dot(normal, lightDir), 0.0f);
+//         diffuse += material.diffuse * light->intensity * diff;
+        
+//         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
+//         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
+//         specular += material.specular * light->intensity * spec;
+//     }
+
+//     return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);
+// }
 glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::vec3 &normal,
                                          const glm::vec3 &viewDir, const Material &material) {
     glm::vec3 ambient = scene.ambientLight * material.ambient;
@@ -110,16 +131,38 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
     glm::vec3 specular(0.0f);
 
     for (const auto &light : scene.lights) {
-        glm::vec3 lightDir = glm::normalize(light->getDirection(hitPoint));
+        glm::vec3 lightDir;
+        glm::vec3 lightPos;
+        float attenuation = 1.0f;  // Default attenuation is 1 (no attenuation)
 
-    
+        // Check if the light is a directional light
+        if (auto directionalLight = std::dynamic_pointer_cast<DirectionalLight>(light)) {
+            lightDir = directionalLight->getDirection(hitPoint);  // Directional light direction
+        }
+        // Check if the light is a spotlight
+        else if (auto spotLight = std::dynamic_pointer_cast<SpotLight>(light)) {
+            lightPos = spotLight->position;  // Spotlight position
+            lightDir = spotLight->getDirection(hitPoint);  // Spotlight direction
+
+
+            // Calculate the distance from the point to the light
+            float distance = glm::length(lightPos - hitPoint);
+
+            // Apply attenuation (you can tune k_c, k_1, k_q)
+            float k_c = 1.0f, k_1 = 0.1f, k_q = 0.01f;  // Example constants
+            attenuation = 1.0f / (k_c + k_1 * distance + k_q * distance * distance);
+        } else {
+            continue;  // Skip any other type of light (e.g., point light)
+        }
+
         // Diffuse lighting
         float diff = glm::max(glm::dot(normal, lightDir), 0.0f);
-        diffuse += material.diffuse * light->intensity * diff;
-        
+        diffuse += material.diffuse * light->intensity * diff * attenuation;  // Apply attenuation
+
+        // Specular lighting
         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
-        specular += material.specular * light->intensity * spec;
+        specular += material.specular * light->intensity * spec * attenuation;  // Apply attenuation
     }
 
     return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);
