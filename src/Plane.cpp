@@ -1,7 +1,7 @@
 #include "Plane.h"
 
 Plane::Plane(const glm::vec3 &n, float dVal, const Material &mat)
-    : Object(mat), normal(glm::normalize(n)), d(dVal) {}  // Normalize once at creation
+    : Object(mat), normal(n), d(dVal) {}  // Normalize once at creation
 
 
 bool Plane::intersect(const Ray &ray, float &t, glm::vec3 &normalOut) const {
