@@ -50,7 +50,7 @@ void Loader::loadScene(const std::string &filename, Scene &scene) {
             iss >> r >> g >> b >> shininess;
             if (objectIndex < scene.objects.size()) {
                 scene.objects[objectIndex++]->material = Material(
-                    glm::vec3(r, g, b), glm::vec3(r, g, b), glm::vec3(0.7f), shininess, 0.0f
+                    glm::vec3(r, g, b), glm::vec3(r, g, b), glm::vec3(0.0f), shininess, 0.0f
                 );
             }
         } 
@@ -63,15 +63,13 @@ void Loader::loadScene(const std::string &filename, Scene &scene) {
                     glm::vec3(x, y, z), glm::vec3(1.0f)  // Default intensity to white (1.0)
                 ));
             } else {  // Spotlight
-                glm::vec3 position(x, y, z);  
+                glm::vec3 direction(x, y, z);  
                 float cutoff = 0.9f;  // Default cutoff for spotlight
                 scene.addLight(std::make_shared<SpotLight>(
-                    position, glm::vec3(0.0f, -1.0f, 0.0f), cutoff, glm::vec3(1.0f)  // Default direction and intensity
+                    direction, direction, cutoff, glm::vec3(1.0f)  
                 ));
                 spotlightCounter++;  // Increment spotlight counter
             }
-
-            lightCounter++;  // Increment light counter
         } 
         else if (type == 'p') {  // Update Spotlight position and cutoff if 'p' appears
             float x, y, z, cutoff;
@@ -81,18 +79,16 @@ void Loader::loadScene(const std::string &filename, Scene &scene) {
             if (spotlightCounter > 0 && spotlightCounter <= scene.lights.size()) {
                 auto spotlight = std::dynamic_pointer_cast<SpotLight>(scene.lights[spotlightCounter - 1]);  // Get the last spotlight added
                 if (spotlight) {
-                    spotlight->position = glm::vec3(x, y, z);  // Update position
-                    spotlight->cutoff = cutoff;  // Update cutoff
+                    spotlight->position = glm::vec3(x, y, z);  
+                    spotlight->cutoff = cutoff; 
                 }
             }
         } 
-        else if (type == 'i') {  // Light intensity
-            float r, g, b;
-            iss >> r >> g >> b;
-
-            // Apply intensity to the light that was added earlier based on the lightCounter
-            if (lightCounter > 0 && lightCounter <= scene.lights.size()) {
-                scene.lights[lightCounter - 1]->intensity = glm::vec3(r, g, b);  // Intensity applied to the correct light
+        else if (type == 'i') {  
+            float r, g, b, mode;
+            iss >> r >> g >> b >> mode;
+            if (lightCounter <= scene.lights.size()) {
+                scene.lights[lightCounter++]->intensity = glm::vec3(r, g, b);  
             }
         }
     }

@@ -103,28 +103,6 @@ float Renderer::findNearestIntersection(const Ray &ray, glm::vec3 &hitPoint, glm
 }
 
 
-// glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::vec3 &normal,
-//                                          const glm::vec3 &viewDir, const Material &material) {
-//     glm::vec3 ambient = scene.ambientLight * material.ambient;
-//     glm::vec3 diffuse(0.0f);
-//     glm::vec3 specular(0.0f);
-
-//     for (const auto &light : scene.lights) {
-//         glm::vec3 lightDir = glm::normalize(light->getDirection(hitPoint));
-
-    
-//         // Diffuse lighting
-//         float diff = glm::max(glm::dot(normal, lightDir), 0.0f);
-//         diffuse += material.diffuse * light->intensity * diff;
-        
-//         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
-//         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
-//         specular += material.specular * light->intensity * spec;
-//     }
-
-//     return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);
-// }
-
 glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::vec3 &normal,
                                          const glm::vec3 &viewDir, const Material &material) {
     glm::vec3 ambient = scene.ambientLight * material.ambient;  // Ambient lighting component
@@ -148,7 +126,7 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
            continue;
         }
 
-        bool inShadow = checkShadow(hitPoint, lightPos, lightDir, scene.objects);
+        bool inShadow = checkShadow(hitPoint, lightPos,glm::normalize(lightDir) , scene.objects);
         if (inShadow) continue;  // Skip this light if it's shadowed
 
         // Calculate Diffuse lighting
@@ -158,7 +136,7 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
         // Calculate Specular lighting
         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
-        specular += material.specular * light->intensity * spec * attenuation;
+        specular +=  light->intensity * spec * attenuation;
     }
 
     return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);  // Clamping the color components to be within [0, 1]
