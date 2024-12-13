@@ -7,10 +7,10 @@ Plane::Plane(const glm::vec3 &n, float dVal, const Material &mat)
 bool Plane::intersect(const Ray &ray, float &t, glm::vec3 &normalOut) const {
     glm::vec3 normalizedNormal = glm::normalize(normal); // Normalize the plane's normal vector
     float denom = glm::dot(normalizedNormal, ray.direction);
-    if (fabs(denom) ==0) {
+     if (fabs(denom) ==0) {
         return false;
     }
-    t = glm::dot(normalizedNormal, (-d * normalizedNormal - ray.origin)) / denom;
+    t = -(glm::dot(normalizedNormal, ray.origin)+d) / denom;
     if (t < 0) {
         return false;
     }
