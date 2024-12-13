@@ -79,8 +79,8 @@ void Loader::loadScene(const std::string &filename, Scene &scene) {
             if (spotlightCounter > 0 && spotlightCounter <= scene.lights.size()) {
                 auto spotlight = std::dynamic_pointer_cast<SpotLight>(scene.lights[spotlightCounter - 1]);  
                 if (spotlight) {
-                    spotlight->position = glm::vec3(x, y, z);  
-                    spotlight->cutoff = cutoff; 
+                    spotlight->position = glm::vec3(2.0f, 1.0f, 3.0f);  
+                    spotlight->cutoff = 0.6f; 
                 }
             }
         } 

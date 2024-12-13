@@ -16,7 +16,7 @@ SpotLight::SpotLight(const glm::vec3 &pos, const glm::vec3 &dir, float co, const
     : Light(i), position(pos), direction(glm::normalize(dir)), cutoff(co) {}
 
 glm::vec3 SpotLight::getDirection(const glm::vec3 &point) const {
-    return glm::normalize(position - point);
+    return -glm::normalize( point - position);
 }
 
 bool SpotLight::isWithinCutoff(const glm::vec3 &point) const {

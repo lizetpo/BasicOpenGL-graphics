@@ -8,12 +8,21 @@ Renderer::Renderer(Scene &scene, int width, int height, int maxDepth)
     : scene(scene), width(width), height(height), maxDepth(maxDepth) {}
 
 void Renderer::render(std::vector<glm::vec3> &imageBuffer) {
+    float pixelWidth = 2.0f / width;  // Width of a single pixel in NDC [-1, 1]
+    float pixelHeight = 2.0f / height; // Height of a single pixel in NDC [-1, 1]
+
+    // Iterate over each pixel on the screen
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            float u = (2.0f * (x + 0.5f) / width - 1.0f);
-            float v = (1.0f - 2.0f * (y + 0.5f) / height);
-            glm::vec3 rayDir = glm::normalize(glm::vec3(u, v, -1.0f));
-            Ray ray(scene.cameraPosition, rayDir);
+            // Calculate pixel center coordinates in normalized device coordinates (NDC)
+            float u = -1.0f + (x + 0.5f) * pixelWidth;  // Map x to [-1, 1]
+            float v = 1.0f - (y + 0.5f) * pixelHeight;  // Map y to [1, -1]
+            
+            // Create a ray for this pixel
+            glm::vec3 rayDir = glm::normalize(glm::vec3(u, v, -1.0f)); // For perspective projection
+            Ray ray(scene.cameraPosition, rayDir); // Camera position as origin
+
+            // Trace the ray and store the result in the image buffer
             imageBuffer[y * width + x] = trace(ray, maxDepth);
         }
     }
@@ -168,12 +177,14 @@ bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos,
 
     float lightDistance = isDirectional ? std::numeric_limits<float>::max() : glm::length(lightPos - hitPoint);
 
-    // if (!isDirectional && cutoff > 0.0f) {
-    //     float cosTheta = glm::dot(glm::normalize(lightDir), glm::normalize(spotlightDir));
-    //     if (cosTheta < cutoff) {
-    //         return false;
-    //     }
-    // }
+    if (!isDirectional && cutoff > 0.0f) {
+        float cutoffAngle = glm::degrees(glm::acos(cutoff)); 
+        glm::vec3 lightToPointDir = glm::normalize(hitPoint - lightPos);
+        float cosTheta = glm::dot(glm::normalize(spotlightDir), lightToPointDir);
+        if (glm::acos(cosTheta)> glm::radians(cutoffAngle)) {
+            return true;
+        }
+    }
 
     for (const auto& object : objects) {
         float t;
