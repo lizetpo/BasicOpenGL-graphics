@@ -124,62 +124,59 @@ float Renderer::findNearestIntersection(const Ray &ray, glm::vec3 &hitPoint, glm
 
 //     return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);
 // }
+
 glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::vec3 &normal,
                                          const glm::vec3 &viewDir, const Material &material) {
-    glm::vec3 ambient = scene.ambientLight * material.ambient;
-    glm::vec3 diffuse(0.0f);
-    glm::vec3 specular(0.0f);
-    
+    glm::vec3 ambient = scene.ambientLight * material.ambient;  // Ambient lighting component
+    glm::vec3 diffuse(0.0f);  // Initialize diffuse component
+    glm::vec3 specular(0.0f);  // Initialize specular component
+
     for (const auto &light : scene.lights) {
         glm::vec3 lightDir;
         glm::vec3 lightPos;
         float attenuation = 1.0f;  // Default attenuation is 1 (no attenuation)
 
-        // Check if the light is a directional light
         if (auto directionalLight = std::dynamic_pointer_cast<DirectionalLight>(light)) {
-            lightDir = directionalLight->getDirection(hitPoint);  // Directional light direction
-        }
-        // Check if the light is a spotlight
-        else if (auto spotLight = std::dynamic_pointer_cast<SpotLight>(light)) {
-            lightPos = spotLight->position;  // Spotlight position
-            lightDir = spotLight->getDirection(hitPoint);  // Spotlight direction
-            
-            // Calculate the distance from the point to the light
+            lightDir = directionalLight->getDirection(hitPoint);  // Direction from directional light
+        } else if (auto spotLight = std::dynamic_pointer_cast<SpotLight>(light)) {
+            lightPos = spotLight->position;  // Position from spotlight
+            lightDir = spotLight->getDirection(hitPoint);  // Calculate direction to light
             float distance = glm::length(lightPos - hitPoint);
-
-            // Apply attenuation (you can tune k_c, k_1, k_q)
-            float k_c = 1.0f, k_1 = 0.1f, k_q = 0.01f;  // Example constants
-            attenuation = 1.0f / (k_c + k_1 * distance + k_q * distance * distance);
-        } else {
-            continue;  // Skip any other type of light (e.g., point light)
+            float k_c = 1.0f, k_l = 0.1f, k_q = 0.01f;
+            attenuation = 1.0f / (k_c + k_l * distance + k_q * distance * distance);
+        } else{
+           continue;
         }
 
-        glm::vec3 lightDirNormalized = glm::normalize(lightDir);
-        Ray shadowRay(hitPoint + lightDirNormalized * 1e-4f, lightDirNormalized);  // Add small bias to avoid self-intersection
+        // Calculate shadow
+        // bool inShadow = checkShadow(hitPoint, lightPos, lightDir, scene.objects);
+        // if (inShadow) continue;  // Skip this light if it's shadowed
 
-        bool inShadow = false;
-        for (const auto &object : scene.objects) {
-            float t;
-            glm::vec3 n;
-            if (object->intersect(shadowRay, t, n) && t >= 1.0f) {
-                inShadow = true;
-                break;
-            }
-        }
+        // Calculate Diffuse lighting
+        float diff = glm::max(glm::dot(normal, glm::normalize(lightDir)), 0.0f);
+        diffuse += material.diffuse * light->intensity * diff * attenuation;
 
-        if (inShadow) {
-            continue;  // If in shadow, skip this light source
-        }
-
-        // Diffuse lighting
-        float diff = glm::max(glm::dot(normal, lightDirNormalized), 0.0f);
-        diffuse += material.diffuse * light->intensity * diff * attenuation;  // Apply attenuation
-
-        // Specular lighting
-        glm::vec3 reflectDir = glm::reflect(-lightDirNormalized, normal);
+        // Calculate Specular lighting
+        glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
-        specular += material.specular * light->intensity * spec * attenuation;  // Apply attenuation
+        specular += material.specular * light->intensity * spec * attenuation;
     }
 
-    return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);
+    return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);  // Clamping the color components to be within [0, 1]
+}
+
+
+bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos, const glm::vec3& lightDir, const std::vector<std::shared_ptr<Object>>& objects) {
+    glm::vec3 shadowRayOrigin = hitPoint + lightDir * 1e-4f;  // Move the origin slightly towards the light to prevent self-intersection
+    Ray shadowRay(shadowRayOrigin, lightDir);
+    float lightDistance = glm::length(lightPos - hitPoint);
+
+    for (const auto& object : objects) {
+        float t;
+        glm::vec3 n;  // Normal at intersection, not used here
+        if (object->intersect(shadowRay, t, n) && t < lightDistance) {
+            return true;  // An object is blocking the light
+        }
+    }
+    return false;  // No object is blocking the light
 }
