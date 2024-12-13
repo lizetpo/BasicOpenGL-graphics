@@ -8,22 +8,40 @@ Renderer::Renderer(Scene &scene, int width, int height, int maxDepth)
     : scene(scene), width(width), height(height), maxDepth(maxDepth) {}
 
 void Renderer::render(std::vector<glm::vec3> &imageBuffer) {
-    float pixelWidth = 2.0f / width;  // Width of a single pixel in NDC [-1, 1]
-    float pixelHeight = 2.0f / height; // Height of a single pixel in NDC [-1, 1]
+    // Number of samples per pixel (NxN sampling grid)
+    int samplesPerPixel = 4; // 2x2 grid of subpixels
+    float sampleStep = 1.0f / samplesPerPixel; // Step size for subpixel sampling
+
+    // Calculate the width and height of a single pixel in normalized device coordinates (NDC)
+    float pixelWidth = 2.0f / width;  // Pixel width in NDC [-1, 1]
+    float pixelHeight = 2.0f / height; // Pixel height in NDC [-1, 1]
 
     // Iterate over each pixel on the screen
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            // Calculate pixel center coordinates in normalized device coordinates (NDC)
-            float u = -1.0f + (x + 0.5f) * pixelWidth;  // Map x to [-1, 1]
-            float v = 1.0f - (y + 0.5f) * pixelHeight;  // Map y to [1, -1]
-            
-            // Create a ray for this pixel
-            glm::vec3 rayDir = glm::normalize(glm::vec3(u, v, -1.0f)); // For perspective projection
-            Ray ray(scene.cameraPosition, rayDir); // Camera position as origin
+            glm::vec3 pixelColor(0.0f); // Initialize pixel color
 
-            // Trace the ray and store the result in the image buffer
-            imageBuffer[y * width + x] = trace(ray, maxDepth);
+            // Perform supersampling for anti-aliasing
+            for (int i = 0; i < samplesPerPixel; ++i) {
+                for (int j = 0; j < samplesPerPixel; ++j) {
+                    // Calculate the sample's coordinates within the pixel
+                    float u = -1.0f + (x + (i + 0.5f) * sampleStep) * pixelWidth; // Subpixel horizontal offset
+                    float v = 1.0f - (y + (j + 0.5f) * sampleStep) * pixelHeight; // Subpixel vertical offset
+                    
+                    // Create a ray for this subpixel
+                    glm::vec3 rayDir = glm::normalize(glm::vec3(u, v, -1.0f)); // Perspective projection ray direction
+                    Ray ray(scene.cameraPosition, rayDir); // Create ray with origin at camera position
+
+                    // Trace the ray and accumulate the color
+                    pixelColor += trace(ray, maxDepth);
+                }
+            }
+
+            // Average the accumulated color from all samples
+            pixelColor /= (samplesPerPixel * samplesPerPixel);
+
+            // Store the averaged color in the image buffer
+            imageBuffer[y * width + x] = glm::clamp(pixelColor, 0.0f, 1.0f);
         }
     }
 }
@@ -91,11 +109,9 @@ float Renderer::findNearestIntersection(const Ray &ray, glm::vec3 &hitPoint, glm
                                          Material &material, int &hitObjectIndex) {
     float nearestT = FLT_MAX;
     hitObjectIndex = -1;
-
     if (scene.objects.empty()) {
         return nearestT;
     }
-
     for (size_t i = 0; i < scene.objects.size(); ++i) {
         float t;
         glm::vec3 n;
@@ -126,8 +142,8 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
         if (auto directionalLight = std::dynamic_pointer_cast<DirectionalLight>(light)) {
             lightDir = directionalLight->getDirection(hitPoint);  // Direction from directional light
         } else if (auto spotLight = std::dynamic_pointer_cast<SpotLight>(light)) {
-            lightPos = spotLight->position;  // Position from spotlight
-            lightDir = spotLight->getDirection(hitPoint);  // Calculate direction to light
+            lightPos = spotLight->position; 
+            lightDir = spotLight->getDirection(hitPoint);  
             float distance = glm::length(lightPos - hitPoint);
             float k_c = 1.0f, k_l = 0.1f, k_q = 0.01f;
             attenuation = 1.0f / (k_c + k_l * distance + k_q * distance * distance);
@@ -157,7 +173,7 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
         }
         if (inShadow) continue;  // Skip this light if it's shadowed
         // Calculate Diffuse lighting
-        float diff = glm::max(glm::dot(normal, glm::normalize(lightDir)), 0.0f);
+        float diff = glm::max(glm::dot(normal, lightDir), 0.0f);
         diffuse += material.diffuse * light->intensity * diff * attenuation;
 
         //Calculate Specular lighting
@@ -171,8 +187,8 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
 
 
 bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos, const glm::vec3& lightDir, const std::vector<std::shared_ptr<Object>>& objects, bool isDirectional, float cutoff, const glm::vec3& spotlightDir) {
-    glm::vec3 shadowRayOrigin = hitPoint + glm::normalize(lightDir) * 1e-4f;
-    glm::vec3 normalizedLightDir = glm::normalize(lightDir);
+    glm::vec3 shadowRayOrigin = hitPoint + lightDir * 1e-4f;
+    glm::vec3 normalizedLightDir = lightDir;
     Ray shadowRay(shadowRayOrigin, normalizedLightDir);
 
     float lightDistance = isDirectional ? std::numeric_limits<float>::max() : glm::length(lightPos - hitPoint);
@@ -188,13 +204,11 @@ bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos,
 
     for (const auto& object : objects) {
         float t;
-        glm::vec3 n;  // Normal at intersection (not used here)
-
-        // If the object intersects the shadow ray and is closer than the light
+        glm::vec3 n; 
         if (object->intersect(shadowRay, t, n) && t > 0 && t < lightDistance) {
-            return true;  // Light is blocked by this object
+            return true;  
         }
     }
 
-    return false;  // No object blocks the light
+    return false;  
 }
