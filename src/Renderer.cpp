@@ -148,9 +148,8 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
            continue;
         }
 
-        // Calculate shadow
-        // bool inShadow = checkShadow(hitPoint, lightPos, lightDir, scene.objects);
-        // if (inShadow) continue;  // Skip this light if it's shadowed
+        bool inShadow = checkShadow(hitPoint, lightPos, lightDir, scene.objects);
+        if (inShadow) continue;  // Skip this light if it's shadowed
 
         // Calculate Diffuse lighting
         float diff = glm::max(glm::dot(normal, glm::normalize(lightDir)), 0.0f);
@@ -167,15 +166,15 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
 
 
 bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos, const glm::vec3& lightDir, const std::vector<std::shared_ptr<Object>>& objects) {
-    glm::vec3 shadowRayOrigin = hitPoint + lightDir * 1e-4f;  // Move the origin slightly towards the light to prevent self-intersection
+    glm::vec3 shadowRayOrigin = hitPoint + lightDir * 0.001f;  // Move the origin slightly towards the light to prevent self-intersection
     Ray shadowRay(shadowRayOrigin, lightDir);
     float lightDistance = glm::length(lightPos - hitPoint);
 
     for (const auto& object : objects) {
         float t;
         glm::vec3 n;  // Normal at intersection, not used here
-        if (object->intersect(shadowRay, t, n) && t < lightDistance) {
-            return true;  // An object is blocking the light
+       if (object->intersect(shadowRay, t, n) && t < lightDistance && t > 0) {
+            return true; // An object is blocking the light
         }
     }
     return false;  // No object is blocking the light

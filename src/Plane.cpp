@@ -10,8 +10,12 @@ bool Plane::intersect(const Ray &ray, float &t, glm::vec3 &normalOut) const {
     if (fabs(denom) > 1e-6) { // Ensure there's no division by zero
         t = -(glm::dot(ray.origin, normalizedNormal) + d) / denom;
         if (t >= 0) {  // Ensure intersection point is in front of the ray
-            normalOut =  glm::normalize(normalizedNormal); ;  // Normal at the intersection point
-            return true;
+            if (glm::dot(ray.direction, normal) > 0) {
+            normalOut = -glm::normalize(normal);  // Flip normal if it points towards the ray
+        } else {
+            normalOut = glm::normalize(normal);
+        }
+        return true;
         }
     }
     return false; // No intersection
