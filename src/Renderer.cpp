@@ -126,14 +126,32 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
            continue;
         }
 
-        bool inShadow = checkShadow(hitPoint, lightPos,glm::normalize(lightDir) , scene.objects);
+        bool inShadow = false;
+        if (auto spotLight = std::dynamic_pointer_cast<SpotLight>(light)) {
+            inShadow = checkShadow(
+                hitPoint,
+                spotLight->position,
+                spotLight->getDirection(hitPoint),
+                scene.objects,
+                false,                           // Not a directional light
+                spotLight->cutoff,               // Spotlight cutoff angle
+                spotLight->direction             // Spotlight direction
+            );
+        } else if (auto directionalLight = std::dynamic_pointer_cast<DirectionalLight>(light)) {
+            inShadow = checkShadow(
+                hitPoint,
+                glm::vec3(0.0f),                 // Directional lights have no position
+                directionalLight->getDirection(hitPoint),
+                scene.objects,
+                true                             // This is a directional light
+            );
+        }
         if (inShadow) continue;  // Skip this light if it's shadowed
-
         // Calculate Diffuse lighting
         float diff = glm::max(glm::dot(normal, glm::normalize(lightDir)), 0.0f);
         diffuse += material.diffuse * light->intensity * diff * attenuation;
 
-        // Calculate Specular lighting
+        //Calculate Specular lighting
         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
         specular +=  light->intensity * spec * attenuation;
@@ -143,17 +161,29 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
 }
 
 
-bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos, const glm::vec3& lightDir, const std::vector<std::shared_ptr<Object>>& objects) {
-    glm::vec3 shadowRayOrigin = hitPoint + lightDir * 0.001f;  // Move the origin slightly towards the light to prevent self-intersection
-    Ray shadowRay(shadowRayOrigin, lightDir);
-    float lightDistance = glm::length(lightPos - hitPoint);
+bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos, const glm::vec3& lightDir, const std::vector<std::shared_ptr<Object>>& objects, bool isDirectional, float cutoff, const glm::vec3& spotlightDir) {
+    glm::vec3 shadowRayOrigin = hitPoint + glm::normalize(lightDir) * 1e-4f;
+    glm::vec3 normalizedLightDir = glm::normalize(lightDir);
+    Ray shadowRay(shadowRayOrigin, normalizedLightDir);
+
+    float lightDistance = isDirectional ? std::numeric_limits<float>::max() : glm::length(lightPos - hitPoint);
+
+    // if (!isDirectional && cutoff > 0.0f) {
+    //     float cosTheta = glm::dot(glm::normalize(lightDir), glm::normalize(spotlightDir));
+    //     if (cosTheta >= cutoff) {
+    //         return false;
+    //     }
+    // }
 
     for (const auto& object : objects) {
         float t;
-        glm::vec3 n;  // Normal at intersection, not used here
-       if (object->intersect(shadowRay, t, n) && t < lightDistance && t > 0) {
-            return true; // An object is blocking the light
+        glm::vec3 n;  // Normal at intersection (not used here)
+
+        // If the object intersects the shadow ray and is closer than the light
+        if (object->intersect(shadowRay, t, n) && t > 0 && t < lightDistance) {
+            return true;  // Light is blocked by this object
         }
     }
-    return false;  // No object is blocking the light
+
+    return false;  // No object blocks the light
 }

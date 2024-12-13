@@ -64,7 +64,7 @@ void Loader::loadScene(const std::string &filename, Scene &scene) {
                 ));
             } else {  // Spotlight
                 glm::vec3 direction(x, y, z);  
-                float cutoff = 0.9f;  // Default cutoff for spotlight
+                float cutoff = 0.6f;  // Default cutoff for spotlight
                 scene.addLight(std::make_shared<SpotLight>(
                     direction, direction, cutoff, glm::vec3(1.0f)  
                 ));

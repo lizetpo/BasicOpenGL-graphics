@@ -5,19 +5,35 @@ Plane::Plane(const glm::vec3 &n, float dVal, const Material &mat)
 
 
 bool Plane::intersect(const Ray &ray, float &t, glm::vec3 &normalOut) const {
-    glm::vec3 normalizedNormal = glm::normalize(normal);  // Normalize the normal here
-    float denom = glm::dot(ray.direction, normalizedNormal);
-    if (fabs(denom) > 1e-6) { // Ensure there's no division by zero
-        t = -(glm::dot(ray.origin, normalizedNormal) + d) / denom;
-        if (t >= 0) {  // Ensure intersection point is in front of the ray
-            if (glm::dot(ray.direction, normal) > 0) {
-            normalOut = -glm::normalize(normal);  // Flip normal if it points towards the ray
-        } else {
-            normalOut = glm::normalize(normal);
-        }
-        return true;
-        }
-    }
-    return false; // No intersection
-}
+    // Normalize the plane normal
+    glm::vec3 normalizedNormal = glm::normalize(normal);
 
+    // Calculate the denominator (N . D)
+    float denom = glm::dot(ray.direction, normalizedNormal);
+
+    // Check if the ray is parallel to the plane
+    if (fabs(denom) > 1e-6) {  // Avoid division by near-zero values
+        // Calculate t using the ray-plane intersection formula
+        glm::vec3 pointOnPlane = -d * normalizedNormal;  // Q = -d * N (point on plane)
+        float numerator = glm::dot(pointOnPlane - ray.origin, normalizedNormal);
+
+        t = numerator / denom;
+
+        // If t < 0, the intersection is behind the ray origin
+        if (t < 0) {
+            return false;  // No valid intersection
+        }
+
+        // Correct the normal's orientation
+        if (denom > 0) {
+            normalOut = -normalizedNormal;  // Flip the normal to point away from the ray
+        } else {
+            normalOut = normalizedNormal;  // Normal already faces the correct direction
+        }
+
+        return true;  // Valid intersection
+    }
+
+    // No intersection: ray is parallel to the plane
+    return false;
+}

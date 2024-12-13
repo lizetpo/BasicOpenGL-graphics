@@ -24,8 +24,15 @@ private:
     glm::vec3 computeCheckerboardColor(const glm::vec3 &baseColor, const glm::vec3 &hitPoint);
     float findNearestIntersection(const Ray &ray, glm::vec3 &hitPoint, glm::vec3 &normal,
                                   Material &material, int &hitObjectIndex);
-    bool checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos, const glm::vec3& lightDir, const std::vector<std::shared_ptr<Object>>& objects);
-
+bool checkShadow(
+    const glm::vec3& hitPoint,
+    const glm::vec3& lightPos,
+    const glm::vec3& lightDir,
+    const std::vector<std::shared_ptr<Object>>& objects,
+    bool isDirectional,
+    float cutoff = 0.0f,
+    const glm::vec3& spotlightDir = glm::vec3(0.0f)
+);
 };
 
 #endif // RENDERER_H
