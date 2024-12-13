@@ -54,30 +54,30 @@ void Loader::loadScene(const std::string &filename, Scene &scene) {
                 );
             }
         } 
-        else if (type == 'd') {  // Directional Light or Spotlight
+        else if (type == 'd') {  
             float x, y, z, mode;
-            iss >> x >> y >> z >> mode;  // x, y, z = direction, mode = 0 for directional, 1 for spotlight
+            iss >> x >> y >> z >> mode;  
+            glm::vec3 direction = glm::vec3(x, y, z);  
 
-            if (mode == 0.0f) {  // Directional Light
+            if (mode == 0.0f) {  
                 scene.addLight(std::make_shared<DirectionalLight>(
-                    glm::vec3(x, y, z), glm::vec3(1.0f)  // Default intensity to white (1.0)
+                    direction, glm::vec3(1.0f)  
                 ));
             } else {  // Spotlight
-                glm::vec3 direction(x, y, z);  
-                float cutoff = 0.6f;  // Default cutoff for spotlight
+                float cutoff = 0.6f;  
                 scene.addLight(std::make_shared<SpotLight>(
                     direction, direction, cutoff, glm::vec3(1.0f)  
                 ));
-                spotlightCounter++;  // Increment spotlight counter
+                spotlightCounter++;  
             }
         } 
-        else if (type == 'p') {  // Update Spotlight position and cutoff if 'p' appears
+        else if (type == 'p') {  
             float x, y, z, cutoff;
             iss >> x >> y >> z >> cutoff;
 
             // Ensure the last added light is a spotlight
             if (spotlightCounter > 0 && spotlightCounter <= scene.lights.size()) {
-                auto spotlight = std::dynamic_pointer_cast<SpotLight>(scene.lights[spotlightCounter - 1]);  // Get the last spotlight added
+                auto spotlight = std::dynamic_pointer_cast<SpotLight>(scene.lights[spotlightCounter - 1]);  
                 if (spotlight) {
                     spotlight->position = glm::vec3(x, y, z);  
                     spotlight->cutoff = cutoff; 

@@ -170,7 +170,7 @@ bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos,
 
     // if (!isDirectional && cutoff > 0.0f) {
     //     float cosTheta = glm::dot(glm::normalize(lightDir), glm::normalize(spotlightDir));
-    //     if (cosTheta >= cutoff) {
+    //     if (cosTheta < cutoff) {
     //         return false;
     //     }
     // }
