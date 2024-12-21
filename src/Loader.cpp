@@ -35,48 +35,31 @@ void Loader::loadScene(const std::string &filename, Scene &scene) {
         else if (type == 'o' || type == 'r' || type == 't') {  // Objects (Sphere or Plane)
             float x, y, z, r;
             iss >> x >> y >> z >> r;
-            bool reflective, transparent = false;
-            if(type == 'r'){
-                reflective = true;
+
+            // Initialize material properties
+            Material material(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, 0.0f);
+
+            if (type == 'r') {  // Reflective
+                material.specular = glm::vec3(1.0f); // Full specular reflection
+                material.transparency = 0.0f;       // Not transparent
+            } else if (type == 't') {  // Transparent
+                material.specular = glm::vec3(0.0f); // No specular reflection
+                material.transparency = 1.0f;       // Fully transparent
+            } else {
+                material.transparency = -1.0f;       // Opaque
             }
-            else if(type == 't'){
-                transparent = true; 
-            }
+
+            // Create and add the object
+            std::shared_ptr<Object> obj;
             if (r > 0) {  // Sphere
-                std::shared_ptr<Object> obj = std::make_shared<Sphere>(glm::vec3(x, y, z), r, Material(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, 0.0f));
-
-                if (type == 'r') { // Reflective
-                    obj->material.specular = glm::vec3(1.0f); // Full specular reflection
-                    obj->material.transparency = 0.0f;       // Not transparent
-                } else if (type == 't') { // Transparent
-                    obj->material.specular = glm::vec3(0.0f); // No specular
-                    obj->material.transparency = 1.0f;       // Fully transparent
-                }
-                else{
-                    obj->material.transparency = -1.0f;       // Fully transparent
-                }
-                
-                scene.addObject(obj );
-
+                obj = std::make_shared<Sphere>(glm::vec3(x, y, z), r, material);
             } else {  // Plane
-                std::shared_ptr<Object> obj = std::make_shared<Plane>(glm::vec3(x, y, z), r, Material(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), 0.0f, 0.0f));
-
-                if (type == 'r') { // Reflective
-                    obj->material.specular = glm::vec3(1.0f); // Full specular reflection
-                    obj->material.transparency = 0.0f;       // Not transparent
-                } else if (type == 't') { // Transparent
-                    obj->material.specular = glm::vec3(0.0f); // No specular
-                    obj->material.transparency = 1.0f;       // Fully transparent
-                }
-                else{
-                    obj->material.transparency = -1.0f;       // Fully transparent
-                }
-
-                scene.addObject(
-                    obj
-                );
+                obj = std::make_shared<Plane>(glm::vec3(x, y, z), r, material);
             }
-        } 
+
+            scene.addObject(obj);
+        }
+
         else if (type == 'c') {  // Colors for the objects
             float r, g, b, shininess;
             iss >> r >> g >> b >> shininess;
