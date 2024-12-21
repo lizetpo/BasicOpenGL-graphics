@@ -5,7 +5,7 @@
 #include <iostream>
 
 Renderer::Renderer(Scene &scene, int width, int height, int maxDepth)
-    : scene(scene), width(width), height(height), maxDepth(maxDepth) {}
+    : scene(scene), width(width), height(height), maxDepth(5) {}
 
 void Renderer::render(std::vector<glm::vec3> &imageBuffer) {
     // Number of samples per pixel (NxN sampling grid)
@@ -25,11 +25,11 @@ void Renderer::render(std::vector<glm::vec3> &imageBuffer) {
             for (int i = 0; i < samplesPerPixel; ++i) {
                 for (int j = 0; j < samplesPerPixel; ++j) {
                     // Calculate the sample's coordinates within the pixel
-                    float u = -1.0f + (x + (i + 0.5f) * sampleStep) * pixelWidth; // Subpixel horizontal offset
-                    float v = 1.0f - (y + (j + 0.5f) * sampleStep) * pixelHeight; // Subpixel vertical offset
+                    float u = -1.0f + (0.5f*sampleStep + x) * pixelWidth; // Subpixel horizontal offset
+                    float v = 1.0f - (0.5f*sampleStep + y ) * pixelHeight; // Subpixel vertical offset                    
                     
                     // Create a ray for this subpixel
-                    glm::vec3 rayDir = glm::normalize(glm::vec3(u, v, -1.0f)); // Perspective projection ray direction
+                    glm::vec3 rayDir = glm::vec3(u, v, 0)-scene.cameraPosition; // Perspective projection ray direction
                     Ray ray(scene.cameraPosition, rayDir); // Create ray with origin at camera position
 
                     // Trace the ray and accumulate the color
@@ -58,33 +58,59 @@ glm::vec3 Renderer::trace(const Ray &ray, int depth) {
         return scene.backgroundColor; // No intersection
     }
 
-    glm::vec3 viewDir = glm::normalize(-ray.direction);
-    glm::vec3 color = glm::vec3(0.0f); // Initialize color to black
-
+    glm::vec3 viewDir = -ray.direction;
+    glm::vec3 color(0.0f); // Initialize color to black
     
     if (dynamic_cast<Plane *>(scene.objects[hitObjectIndex].get())) {
+        material.diffuse = computeCheckerboardColor(material.diffuse, hitPoint);
         material.ambient = computeCheckerboardColor(material.ambient, hitPoint);
     }
+    if (material.transparency == 0.0f) {
+        glm::vec3 reflectionDir = glm::normalize(glm::reflect(ray.direction, normal));
+        Ray reflectionRay(hitPoint + reflectionDir * 1e-4f, reflectionDir);
+        color = trace(reflectionRay, depth - 1); // Recursive call for reflection
+    } 
+    else if (material.transparency > 0.0f) {
+        float eta = glm::dot(ray.direction, normal) < 0 ? 1.0f / 1.5f : 1.5f;
+        glm::vec3 adjustedNormal = glm::dot(ray.direction, normal) < 0 ? normal : -normal;
+        glm::vec3 refractionDir = glm::refract(ray.direction, adjustedNormal, eta);
 
-    color = computePhongLighting(hitPoint, normal, viewDir, material);
+        glm::vec3 refractionColor(0.0f); // Color from refraction
+        glm::vec3 reflectionColor(0.0f); // Color from reflection
+        
 
-    // if (material.specular != glm::vec3(0.0f)) {
-    //     glm::vec3 reflectDir = glm::reflect(ray.direction, normal);
-    //     Ray reflectedRay(hitPoint + 1e-4f * reflectDir, reflectDir);
-    //     color += trace(reflectedRay, depth - 1) * material.specular;
-    // }
+        // Compute refraction color
+        if (glm::length(refractionDir) > 0.0f) { // Refraction occurred
+            Ray refractionRay(hitPoint + refractionDir * 1e-4f, refractionDir);
+            refractionColor = trace(refractionRay, depth - 1); // Recursive call for refraction
+        }
+        else {
+            // Total internal reflection
+            glm::vec3 totalReflectionDir = glm::reflect(ray.direction, normal);
+            Ray totalReflectionRay(hitPoint + totalReflectionDir * 1e-4f, totalReflectionDir);
+            reflectionColor = trace(totalReflectionRay, depth - 1);
+        }
 
-    // if (material.transparency > 0.0f) {
-    //     float eta = 1.0f / 1.5f;
-    //     if (glm::dot(ray.direction, normal) > 0.0f) {
-    //         normal = -normal;
-    //         eta = 1.5f / 1.0f;
-    //     }
-    //     glm::vec3 refractDir = glm::refract(ray.direction, normal, eta);
-    //     Ray refractedRay(hitPoint + 1e-4f * refractDir, refractDir);
-    //     color += trace(refractedRay, depth - 1) * material.transparency;
-    // }
+        // Compute reflection color
+        glm::vec3 reflectionDir = glm::reflect(ray.direction, normal);
+        Ray reflectionRay(hitPoint + reflectionDir * 1e-4f, reflectionDir);
+        reflectionColor = trace(reflectionRay, depth - 1);
+
+        // Combine refraction and reflection
+        float reflectivity = 0.1f; // Adjust reflectivity factor as needed
+        color = (1.0f - material.transparency) * computePhongLighting(hitPoint, normal, viewDir, material) +
+                material.transparency * ((1.0f - reflectivity) * refractionColor + reflectivity * reflectionColor);
+
+        // Clamp the final color
+        color = glm::clamp(color, 0.0f, 1.0f);
+    }
+    else {
+        // Opaque object - Use Phong shading
+        color = computePhongLighting(hitPoint, normal, viewDir, material);
+    }
+
     return glm::clamp(color, 0.0f, 1.0f);
+
 }
 
 glm::vec3 Renderer::computeCheckerboardColor(const glm::vec3 &baseColor, const glm::vec3 &hitPoint) {
@@ -95,10 +121,10 @@ glm::vec3 Renderer::computeCheckerboardColor(const glm::vec3 &baseColor, const g
     } else {
         checkerboard += floor(hitPoint.x / scaleParameter);
     }
-    if (hitPoint.z < 0) {
-        checkerboard += floor((0.5 - hitPoint.z) / scaleParameter);
+    if (hitPoint.y < 0) {
+        checkerboard += floor((0.5 - hitPoint.y) / scaleParameter);
     } else {
-        checkerboard += floor(hitPoint.z / scaleParameter);
+        checkerboard += floor(hitPoint.y / scaleParameter);
     }
     checkerboard = (checkerboard * 0.5) - int(checkerboard * 0.5);
     checkerboard *= 2;
@@ -137,7 +163,6 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
     for (const auto &light : scene.lights) {
         glm::vec3 lightDir;
         glm::vec3 lightPos;
-        float attenuation = 1.0f;  // Default attenuation is 1 (no attenuation)
 
         if (auto directionalLight = std::dynamic_pointer_cast<DirectionalLight>(light)) {
             lightDir = directionalLight->getDirection(hitPoint);  // Direction from directional light
@@ -146,7 +171,6 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
             lightDir = spotLight->getDirection(hitPoint);  
             float distance = glm::length(lightPos - hitPoint);
             float k_c = 1.0f, k_l = 0.1f, k_q = 0.01f;
-            attenuation = 1.0f / (k_c + k_l * distance + k_q * distance * distance);
         } else{
            continue;
         }
@@ -174,12 +198,12 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
         if (inShadow) continue;  // Skip this light if it's shadowed
         // Calculate Diffuse lighting
         float diff = glm::max(glm::dot(normal, lightDir), 0.0f);
-        diffuse += material.diffuse * light->intensity * diff * attenuation;
+        diffuse += material.diffuse * light->intensity * diff;
 
         //Calculate Specular lighting
         glm::vec3 reflectDir = glm::reflect(-lightDir, normal);
         float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), material.shininess);
-        specular +=  light->intensity * spec * attenuation;
+        specular +=  light->intensity * spec;
     }
 
     return glm::clamp(ambient + diffuse + specular, 0.0f, 1.0f);  // Clamping the color components to be within [0, 1]
@@ -189,7 +213,7 @@ glm::vec3 Renderer::computePhongLighting(const glm::vec3 &hitPoint, const glm::v
 bool Renderer::checkShadow(const glm::vec3& hitPoint, const glm::vec3& lightPos, const glm::vec3& lightDir, const std::vector<std::shared_ptr<Object>>& objects, bool isDirectional, float cutoff, const glm::vec3& spotlightDir) {
     glm::vec3 shadowRayOrigin = hitPoint + lightDir * 1e-4f;
     glm::vec3 normalizedLightDir = lightDir;
-    Ray shadowRay(shadowRayOrigin, normalizedLightDir);
+    Ray shadowRay(shadowRayOrigin, glm::normalize(lightDir));
 
     float lightDistance = isDirectional ? std::numeric_limits<float>::max() : glm::length(lightPos - hitPoint);
 

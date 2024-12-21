@@ -14,7 +14,7 @@ const int HEIGHT = 800; // Define the image height
 int main() {
     // Setup Scene
     Scene scene(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.0f, 5.0f));
-    Loader::loadScene("C:/dev/BasicOpenGL-graphics/src/scene1.txt", scene); // Adjust the path to the scene file
+    Loader::loadScene("../src/scene6.txt", scene); // Adjust the path to the scene file
 
     // Setup Renderer
     Renderer renderer(scene, WIDTH, HEIGHT, 5);
