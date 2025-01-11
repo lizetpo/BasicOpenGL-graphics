@@ -45,9 +45,9 @@ int cubesIndex[CUBE_SIZE];
 float angleSum = 0.0f;
 int animation;
 int inside = 0;
-bool global = true;
+bool global = false;
 
-inline void rotate_face(const int cubes[], const glm::vec3& localAxis, const float rot_angle) {
+inline void rotate_face(const int cubes[], const int direction, const float rot_angle) {
      inMovement = true;
 	 animation = 0;
 	 switch (direction) {
@@ -108,13 +108,14 @@ inline void change_array_index(int indexArray[CUBE_FACE_SIZE], int paramArray[CU
     print_state();  // Debugging: Print cube state after index update
 }
 
-inline void rotation_checker(int before[], int after[], const glm::vec3& localAxis, int dir, int face) {
-    if ((FaceMoving == 0 )|| (FaceMoving == face)) {
+inline void rotation_checker(int before1[], int after1[], int axis1, int dir1, int face) {
+
+	 if ((FaceMoving == 0 )|| (FaceMoving == face)) {
 
 		 FaceMoving = face;
-		 rotate_face(before1, axis1, dir1*clockwise*angle);
+		 rotate_face(before1, axis1, dir1*clockwise*rotationAngle);
 
-		 totalAngle = totalAngle + clockwise*angle;
+		 totalAngle = totalAngle + clockwise*rotationAngle;
 		 if (compare_floats(fabs(totalAngle), 90.0f)) {
 			 FaceMoving = 0;
 			 totalAngle = 0.0f;
@@ -127,46 +128,12 @@ inline void rotation_checker(int before[], int after[], const glm::vec3& localAx
 			 change_array_index(before1, after1);
 		 }
 		 else if (totalAngle > 180.0f) {
-			 totalAngle = -angle;
-			 rotate_face(before1, 2, dir1*clockwise*-angle);
+			 totalAngle = -rotationAngle;
+			 rotate_face(before1, 2, dir1*clockwise*-rotationAngle);
 		 }
 	 }
-}
+ }
 
-void updateIndicesAfterGlobalRotation() {
-    // Temporary array to store the new indices
-    int newCubesIndex[CUBE_SIZE];
-
-    // Loop through each cube
-    for (int i = 0; i < CUBE_SIZE; i++) {
-        // Get the original 3D position of the cube
-        int x = i % size;                 // X-coordinate
-        int y = (i / size) % size;        // Y-coordinate
-        int z = i / (size * size);        // Z-coordinate
-
-        // Center the cube positions for rotation
-        glm::vec3 originalPos = glm::vec3(x, y, z) - glm::vec3(size - 1) * 0.5f;
-
-        // Apply the global rotation to the position
-        glm::vec3 rotatedPos = glm::vec3(globalRotationMatrix * glm::vec4(originalPos, 1.0f));
-
-        // Recalculate the new grid position
-        int newX = glm::round(rotatedPos.x + (size - 1) * 0.5f);
-        int newY = glm::round(rotatedPos.y + (size - 1) * 0.5f);
-        int newZ = glm::round(rotatedPos.z + (size - 1) * 0.5f);
-
-        // Compute the new index in the 1D array
-        int newIndex = newZ * size * size + newY * size + newX;
-
-        // Update the newCubesIndex array
-        newCubesIndex[newIndex] = cubesIndex[i];
-    }
-
-    // Copy the updated indices back to cubesIndex
-    for (int i = 0; i < CUBE_SIZE; i++) {
-        cubesIndex[i] = newCubesIndex[i];
-    }
-}
 
 inline void reset_transformations() {
     for (int i = 0; i < CUBE_SIZE; i++) {
@@ -518,7 +485,6 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                     global = true;
                    
 				}
-                updateIndicesAfterGlobalRotation():
 				break;
 			case GLFW_KEY_DOWN:
 				for (int i = 0; i < CUBE_SIZE; i++)
@@ -531,7 +497,6 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                     
 
 				}
-                updateIndicesAfterGlobalRotation():
 				break;
 
 			case GLFW_KEY_RIGHT:
@@ -544,7 +509,6 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                     global = true;
 
 				}
-                updateIndicesAfterGlobalRotation():
 				break;
 			case GLFW_KEY_LEFT:
 				for (int i = 0; i < CUBE_SIZE; i++)
@@ -557,7 +521,6 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                            
 
 				}
-                updateIndicesAfterGlobalRotation():
 				break;
 			case GLFW_KEY_R:
 				if (action == GLFW_PRESS)

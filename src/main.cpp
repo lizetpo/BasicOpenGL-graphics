@@ -164,10 +164,10 @@ int main() {
                 // Translate and rotate each cube based on its individual transformations
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
                 
-                glm::mat4 model = allCubes[index].rotMatrix *trans* scaleS;
+                glm::mat4 model = allCubes[index].rotMatrix *allCubes[index].transMatrix* scaleS;
                 if(global){
                 
-                    model = trans * allCubes[index].rotMatrix * scaleS;
+                    model = allCubes[index].transMatrix * allCubes[index].rotMatrix * scaleS;
                 }
                 
                 
@@ -186,12 +186,11 @@ int main() {
     }
 
     // Normalize rotation matrices for cubes that were rotated
-    if (!inMovement) {
-        for (int i = 0; i < CUBE_SIZE; i++) {
-            normalize_rotation_matrix(allCubes[i].rotMatrix);
-        }
-    }   
-    global = false;
+    for (int i = 0; i < CUBE_SIZE;i++) {
+			allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
+		}
+		inMovement = false;	
+        global = false;
     // Swap buffers and poll for input events
     glfwSwapBuffers(window);
     glfwPollEvents();
