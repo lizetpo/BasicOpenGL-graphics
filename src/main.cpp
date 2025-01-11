@@ -148,21 +148,30 @@ int main() {
         glfwSetKeyCallback(window, key_callback);
 
 
-        while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window)) {
     GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-    // Rendering logic
+    // Render the cubes
     for (int z = -1; z <= 1; z++) {
         for (int y = -1; y <= 1; y++) {
             for (int x = -1; x <= 1; x++) {
-                if (x == 0 && y == 0 && z == 0) continue;
+                if (x == 0 && y == 0 && z == 0) continue; // Skip center cube if necessary
 
-                glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
+                glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
                 int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
+                
+                // Translate and rotate each cube based on its individual transformations
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                glm::mat4 model = trans* allCubes[index].rotMatrix  * scaleS;
-
+                
+                glm::mat4 model = allCubes[index].rotMatrix *trans* scaleS;
+                if(global){
+                
+                    model = trans * allCubes[index].rotMatrix * scaleS;
+                }
+                
+                
+                // Compute MVP (Model-View-Projection matrix)
                 glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
 
                 shader.Bind();
@@ -176,15 +185,14 @@ int main() {
         }
     }
 
-    // **Place Reset Logic Here**
-    for (int i = 0; i < CUBE_SIZE; i++) {
-    normalize_rotation_matrix(allCubes[i].rotMatrix);
-}
-
-
-    inMovement = false; // Unlock for next movement
-
-    // Swap buffers and poll events
+    // Normalize rotation matrices for cubes that were rotated
+    if (!inMovement) {
+        for (int i = 0; i < CUBE_SIZE; i++) {
+            normalize_rotation_matrix(allCubes[i].rotMatrix);
+        }
+    }   
+    global = false;
+    // Swap buffers and poll for input events
     glfwSwapBuffers(window);
     glfwPollEvents();
 }
