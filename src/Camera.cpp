@@ -14,7 +14,6 @@ void Camera::setPerspective(float near, float far) {
     m_Near = near;
     m_Far = far;
 
-    float aspectRatio = (float)m_Width / (float)m_Height;
 
     m_Projection = glm::perspective(glm::radians(45.0f), 1.0f, near, far);
 

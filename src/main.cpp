@@ -180,6 +180,8 @@ int main() {
     for (int i = 0; i < CUBE_SIZE; i++) {
         allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Save the final rotation
     }
+        reset_transformations();
+
 
     inMovement = false; // Unlock for next movement
 
