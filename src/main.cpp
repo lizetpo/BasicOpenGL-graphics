@@ -159,9 +159,10 @@ int main() {
                 if (x == 0 && y == 0 && z == 0) continue;
 
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
-                int index = (x + 1) + (y + 1) * size + (z + 1) * size * size;
+                int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                glm::mat4 model = trans * allCubes[index].rotMatrix * scaleS;
+                glm::mat4 model = allCubes[index].rotMatrix * trans * scaleS;
+
                 glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
 
                 shader.Bind();

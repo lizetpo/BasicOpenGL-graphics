@@ -116,12 +116,12 @@ inline void rotation_checker(int before[], int after[], int axis, int dir, int f
 
         totalAngle += clockwise * rotationAngle;
 
-        if (compare_floats(fabs(totalAngle), 90.0f)) {
+        if (compare_floats(abs(totalAngle), 90.0f)) {
             FaceMoving = 0;
             totalAngle = 0.0f;
             change_array_index(before, after);
 
-        } else if (compare_floats(fabs(totalAngle), 180.0f)) {
+        } else if (compare_floats(abs(totalAngle), 180.0f)) {
             FaceMoving = 0;
             totalAngle = 0.0f;
             change_array_index(before, after);
