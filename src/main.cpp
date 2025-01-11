@@ -161,7 +161,7 @@ int main() {
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
                 int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                glm::mat4 model = allCubes[index].rotMatrix * trans * scaleS;
+                glm::mat4 model = trans* allCubes[index].rotMatrix  * scaleS;
 
                 glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
 
@@ -178,9 +178,8 @@ int main() {
 
     // **Place Reset Logic Here**
     for (int i = 0; i < CUBE_SIZE; i++) {
-        allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Save the final rotation
-    }
-        reset_transformations();
+    normalize_rotation_matrix(allCubes[i].rotMatrix);
+}
 
 
     inMovement = false; // Unlock for next movement
