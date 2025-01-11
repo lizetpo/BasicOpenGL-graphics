@@ -160,16 +160,15 @@ int main() {
 
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
                 int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
-                
+                int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
                 // Translate and rotate each cube based on its individual transformations
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
                 
-                glm::mat4 model = allCubes[index].rotMatrix *trans* scaleS;
-                if(global){
-                    std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+                //glm::mat4 model = allCubes[index].rotMatrix *trans* scaleS;
+                //if(global){
 
-                    model = trans * allCubes[index].rotMatrix * scaleS;
-                }
+                glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
+               // }
                 
                 
                 // Compute MVP (Model-View-Projection matrix)
@@ -192,6 +191,8 @@ int main() {
             normalize_rotation_matrix(allCubes[i].rotMatrix);
         }
     }   
+
+
     global = false;
     // Swap buffers and poll for input events
     glfwSwapBuffers(window);
