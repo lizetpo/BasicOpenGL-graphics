@@ -1,43 +1,50 @@
-#pragma once   //maybe should be static class
-#include "GLFW/glfw3.h"
+#pragma once
+
+#define GLM_ENABLE_EXPERIMENTAL
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
-using namespace glm;
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtx/vector_angle.hpp>
+
+#include <iostream>
 
 class Cube {
-
 public:
-	int index;
-	mat4 rotMatrix;
-	mat4 transMatrix;
-	mat4 oldRotMatrix;
+    int index;
+    glm::mat4 rotMatrix;
+    glm::mat4 transMatrix;
+    glm::mat4 oldRotMatrix;
 
-	Cube(int ind) {
-		index = ind;
-		rotMatrix = mat4(1);
-		transMatrix = mat4(1);
-		oldRotMatrix = mat4(1);
-	}
+    Cube(int ind) {
+        index = ind;
+        rotMatrix = glm::mat4(1);
+        transMatrix = glm::mat4(1);
+        oldRotMatrix = glm::mat4(1);
+    }
 
-	Cube() {
-		index = 0;
-	}
+    Cube() {
+        index = 0;
+    }
 };
 
 static const int size = 3;
-static const int CUBE_SIZE = size * size* size;
-static const int CUBE_FACE_SIZE = size* size;
+static const int CUBE_SIZE = size * size * size;
+static const int CUBE_FACE_SIZE = size * size;
 
- int FaceMoving = 0;
- float totalAngle = 0.0f;
- bool inMovement = false;
- int clockwise = 1;
- float angle = 90.0f;
- Cube allCubes[CUBE_SIZE];
- int cubesIndex[CUBE_SIZE];
- float angleSum = 0.0;
- int animation;
- int inside = 0;
+int FaceMoving = 0;
+float totalAngle = 0.0f;
+bool inMovement = false;
+int clockwise = 1;
+float rotationAngle = 90.0f; // Renamed variable
+Cube allCubes[CUBE_SIZE];
+int cubesIndex[CUBE_SIZE];
+float angleSum = 0.0f;
+int animation;
+int inside = 0;
 
 inline void rotate_face(const int cubes[], const int direction, const float rot_angle) {
 	 inMovement = true;
@@ -45,7 +52,7 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
 	 switch (direction) {
 	 case 1:
 		 for (int i = 0; i < CUBE_FACE_SIZE; i++) {
-			 const mat4 rotate_face_cube = rotate(rot_angle, vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[0][0], allCubes[cubesIndex[cubes[i]]].transMatrix[0][1], allCubes[cubesIndex[cubes[i]]].transMatrix[0][2]));
+			 const glm::mat4 rotate_face_cube = glm::rotate(rot_angle, glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[0][0], allCubes[cubesIndex[cubes[i]]].transMatrix[0][1], allCubes[cubesIndex[cubes[i]]].transMatrix[0][2]));
 		     allCubes[cubesIndex[cubes[i]]].oldRotMatrix = allCubes[cubesIndex[cubes[i]]].rotMatrix;
 			 allCubes[cubesIndex[cubes[i]]].rotMatrix = rotate_face_cube*allCubes[cubesIndex[cubes[i]]].rotMatrix;
 		 }
@@ -53,7 +60,7 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
 		 break;
 	 case 2:
 		 for (int i = 0; i < CUBE_FACE_SIZE; i++) {
-			 mat4 rotate_face_cube = rotate(rot_angle, vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[1][0],
+			 glm::mat4 rotate_face_cube = glm::rotate(rot_angle, glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[1][0],
 			                                               allCubes[cubesIndex[cubes[i]]].transMatrix[1][1],
 			                                               allCubes[cubesIndex[cubes[i]]].transMatrix[1][2]));
 			 allCubes[cubesIndex[cubes[i]]].oldRotMatrix = allCubes[cubesIndex[cubes[i]]].rotMatrix;
@@ -62,7 +69,7 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
 		 break;
 	 case 3:
 		 for (int i = 0; i < CUBE_FACE_SIZE; i++) {
-			 mat4 rotate_face_cube = rotate(rot_angle, vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[2][0], allCubes[cubesIndex[cubes[i]]].transMatrix[2][1], allCubes[cubesIndex[cubes[i]]].transMatrix[2][2]));
+			glm:: mat4 rotate_face_cube = glm::rotate(rot_angle, glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[2][0], allCubes[cubesIndex[cubes[i]]].transMatrix[2][1], allCubes[cubesIndex[cubes[i]]].transMatrix[2][2]));
 				 allCubes[cubesIndex[cubes[i]]].oldRotMatrix = allCubes[cubesIndex[cubes[i]]].rotMatrix;
 				 allCubes[cubesIndex[cubes[i]]].rotMatrix = rotate_face_cube*allCubes[cubesIndex[cubes[i]]].rotMatrix;
 		 }
@@ -73,62 +80,63 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
  };
 
 inline void print_state() {
-	 for (int i = 0; i < CUBE_SIZE; i++) {
-		 std::cout << cubesIndex[i] << " ";
-	 }
-	 std::cout << "\n";
- }
+    for (int i = 0; i < CUBE_SIZE; i++) {
+        std::cout << cubesIndex[i] << " ";
+    }
+    std::cout << "\n";
+}
 
-inline bool compare_floats(float A, float B)
- {
-	 float epsilon = 0.5f;
-	 return (fabs(A - B) < epsilon);
- }
+inline bool compare_floats(float A, float B) {
+    const float epsilon = 0.01f; // Adjust epsilon for better precision
+    return (fabs(A - B) < epsilon);
+}
+
 
 inline void change_array_index(int indexArray[CUBE_FACE_SIZE], int paramArray[CUBE_FACE_SIZE]) {
-	 int temp[CUBE_SIZE];
-	 for (int i = 0; i < CUBE_SIZE; i++) {
-		 temp[i] = cubesIndex[i];
-	 }
+    int temp[CUBE_SIZE];
+    for (int i = 0; i < CUBE_SIZE; i++) {
+        temp[i] = cubesIndex[i];
+    }
 
-	 for (int i = 0; i < CUBE_FACE_SIZE; i++)
-	 {
-		 if (clockwise == 1)
-			 cubesIndex[indexArray[i]] = temp[paramArray[i]];
-		 else
-			 cubesIndex[paramArray[i]] = temp[indexArray[i]];
-	 }
-	 print_state();
- }
+    for (int i = 0; i < CUBE_FACE_SIZE; i++) {
+        if (clockwise == 1) {
+            cubesIndex[indexArray[i]] = temp[paramArray[i]];
+        } else {
+            cubesIndex[paramArray[i]] = temp[indexArray[i]];
+        }
+    }
+    print_state();  // Debugging: Print cube state after index update
+}
+
+inline void rotation_checker(int before[], int after[], int axis, int dir, int face) {
+
+    if ((FaceMoving == 0) || (FaceMoving == face)) {
+        FaceMoving = face;
+        rotate_face(before, axis, dir * clockwise * rotationAngle);
+
+        totalAngle += clockwise * rotationAngle;
+
+        if (compare_floats(fabs(totalAngle), 90.0f)) {
+            FaceMoving = 0;
+            totalAngle = 0.0f;
+            change_array_index(before, after);
+
+        } else if (compare_floats(fabs(totalAngle), 180.0f)) {
+            FaceMoving = 0;
+            totalAngle = 0.0f;
+            change_array_index(before, after);
+            change_array_index(before, after);
+
+        } else if (totalAngle > 180.0f) {
+            totalAngle = -rotationAngle;
+            rotate_face(before, axis, dir * clockwise * -rotationAngle);
+            
+        }
+    }
+}
 
 
-inline void rotation_checker(int before1[], int after1[], int axis1, int dir1, int face) {
-
-	 if ((FaceMoving == 0 )|| (FaceMoving == face)) {
-
-		 FaceMoving = face;
-		 rotate_face(before1, axis1, dir1*clockwise*angle);
-
-		 totalAngle = totalAngle + clockwise*angle;
-		 if (compare_floats(fabs(totalAngle), 90.0f)) {
-			 FaceMoving = 0;
-			 totalAngle = 0.0f;
-			 change_array_index(before1, after1);
-		 }
-		 else if (compare_floats(fabs(totalAngle), 180.0f)) {
-			 FaceMoving = 0;
-			 totalAngle = 0.0f;
-			 change_array_index(before1, after1);
-			 change_array_index(before1, after1);
-		 }
-		 else if (totalAngle > 180.0f) {
-			 totalAngle = -angle;
-			 rotate_face(before1, 2, dir1*clockwise*-angle);
-		 }
-	 }
- }
-
-
+// Key callback example
 inline void rotate_u() { // BY Y
 	switch (size) {
 	case 2: {
@@ -406,6 +414,17 @@ inline void rotate_l() { // BY X
 	}
 }
 
+inline void reset_transformations() {
+    for (int i = 0; i < CUBE_SIZE; i++) {
+        int x = i % size;                 // X-coordinate
+        int y = (i / size) % size;        // Y-coordinate
+        int z = i / (size * size);        // Z-coordinate
+
+        // Initialize translation matrix based on grid layout
+        allCubes[i].transMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+    }
+}
+
 inline void mixer()
 {
 	
@@ -458,7 +477,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_UP:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const mat4 rotate1 = rotate(7.0f, vec3(1, 0, 0));
+					const glm::mat4 rotate1 = rotate(7.0f, glm::vec3(1, 0, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
@@ -467,7 +486,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_DOWN:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const mat4 rotate1 = rotate(-7.0f, vec3(1, 0, 0));
+					const glm::mat4 rotate1 = rotate(-7.0f, glm::vec3(1, 0, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
@@ -477,7 +496,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_RIGHT:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const mat4 rotate2 = rotate(7.0f, vec3(0, 1, 0));
+					const glm::mat4 rotate2 = rotate(7.0f, glm::vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix;
@@ -486,7 +505,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_LEFT:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const mat4 rotate2 = rotate(-7.0f, vec3(0, 1, 0));
+					const glm::mat4 rotate2 = rotate(-7.0f, glm::vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix;
@@ -507,6 +526,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_U:
 				if (action == GLFW_PRESS)
 				{
+
 					rotate_u();
 				}
 				break;
@@ -534,13 +554,13 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				break;
 			case GLFW_KEY_Z:
 				if (action == GLFW_PRESS)
-					angle = angle / 2;
+					rotationAngle = rotationAngle / 2;
 				break;
 			case GLFW_KEY_A:
 				if (action == GLFW_PRESS)
-					if (angle <= 90)
+					if (rotationAngle <= 90)
 					{
-						angle = angle * 2;
+						rotationAngle = rotationAngle * 2;
 					}
 				break;
 			case GLFW_KEY_M:

@@ -58,24 +58,41 @@ float vertices[] = {
 };
 
 /* Indices for vertices order */
-unsigned int indices[] = {
-    0, 1, 2,  2, 3, 0,   // Back face
-    4, 5, 6,  6, 7, 4,   // Front face
-    8, 9, 10, 10, 11, 8,  // Left face
-    12, 13, 14, 14, 15, 12, // Right face
-    16, 17, 18, 18, 19, 16, // Bottom face
-    20, 21, 22, 22, 23, 20, // Top face
-};
+unsigned int indices[] = { 0, 1, 2,
+		0, 2, 3,
+
+		6, 5, 4,
+		7, 6, 4,
+
+		10, 9, 8,
+		11, 10, 8,
+
+		12, 13, 14,
+		12, 14, 15,
+
+		16, 17, 18,
+		16, 18, 19,
+
+		22, 21, 20,
+		23, 22, 20
+	};
 
 
 
 int main() {
+    std::cout.flush();
+
     if (!glfwInit()) return -1;
 
     for (int z = 0; z <CUBE_SIZE; z++) {
 				allCubes[z] = Cube(z);
 				cubesIndex[z] = z;
 	}
+    
+    reset_transformations();
+
+
+
 
     GLFWwindow* window = glfwCreateWindow(width, height, "Rubik's Cube", NULL, NULL);
     if (!window) {
@@ -125,46 +142,51 @@ int main() {
 
         Camera camera(width, height);
         camera.setPerspective(near,far);
-        camera.EnableInputs(window);
         glm::mat4 scaleS = scale(glm::mat4(1), glm::vec3(1.0f, 1.0f, 1.0f));
+        
+
+        glfwSetKeyCallback(window, key_callback);
+
 
         while (!glfwWindowShouldClose(window)) {
+    GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
+    GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-            GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
-            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-                    int cubeIndex = 0;
+    // Rendering logic
+    for (int z = -1; z <= 1; z++) {
+        for (int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+                if (x == 0 && y == 0 && z == 0) continue;
 
-            for (int z = -1; z <= 1; z++) {
-                for (int y = -1; y <= 1; y++) {
-                    for (int x = -1; x <= 1; x++) {
-                        if (x == 0 && y == 0 && z == 0) continue;
+                glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
+                int index = (x + 1) + (y + 1) * size + (z + 1) * size * size;
+                glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+                glm::mat4 model = trans * allCubes[index].rotMatrix * scaleS;
+                glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
 
-                            glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f);
-
-                            glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                            glm::mat4 rot = glm::rotate(glm::mat4(1.0f), 0.0f, glm::vec3(x, y, z));
-
-                            glm::mat4 model = trans * rot * scaleS;
-                            glm::mat4 view = camera.GetViewMatrix();
-                            glm::mat4 proj = camera.GetProjectionMatrix();
-                            glm::mat4 mvp = proj * view * model;
-
-                            shader.Bind();
-                            shader.SetUniform4f("u_Color", color);
-
-                            shader.SetUniformMat4f("u_MVP", mvp);
-                            shader.SetUniform1i("u_Texture", 0);
-                            va.Bind();
-                            ib.Bind();
-                            GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
-            
-                    }
-                }
+                shader.Bind();
+                shader.SetUniform4f("u_Color", color);
+                shader.SetUniformMat4f("u_MVP", mvp);
+                shader.SetUniform1i("u_Texture", 0);
+                va.Bind();
+                ib.Bind();
+                GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
             }
-
-            glfwSwapBuffers(window);
-            glfwPollEvents();
         }
+    }
+
+    // **Place Reset Logic Here**
+    for (int i = 0; i < CUBE_SIZE; i++) {
+        allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Save the final rotation
+    }
+
+    inMovement = false; // Unlock for next movement
+
+    // Swap buffers and poll events
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+        
     }
     
     glfwTerminate();

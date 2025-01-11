@@ -16,15 +16,15 @@ void Camera::setPerspective(float near, float far) {
 
     float aspectRatio = (float)m_Width / (float)m_Height;
 
-    m_Projection = glm::perspective(glm::radians(45.0f), aspectRatio, near, far);
+    m_Projection = glm::perspective(glm::radians(45.0f), 1.0f, near, far);
 
-    m_Position =  glm::vec3(8.0f, 8.0f, 8.0f);   // Adjust the distance (10, 10, 20) as needed
-    m_Orientation = glm::vec3(0.0f, 0.0f, -1.0f); // Keep looking forward
+    m_Position =   glm::vec3(3.0f, 3.0f, -9.0f);   // Adjust the distance (10, 10, 20) as needed
+    m_Orientation = glm::vec3(0.0f, 0.0f, 1.0f); // Keep looking forward
 
     m_View = glm::lookAt(
-        m_Position,                  // Camera position
-        glm::vec3(0.0f, 0.0f, 0.0f), // Target (origin in this case)
-        m_Up                         // Up direction
+        glm::vec3(3.0f, 3.0f, -9.0f), // Adjust z-value if needed
+        glm::vec3(0.0f, 0.0f, 0.0f), // Look at the origin
+        glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
     );
 }
 /////////////////////
