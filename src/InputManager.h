@@ -128,6 +128,9 @@ inline void rotation_checker(int before[], int after[], const glm::vec3& localAx
             }
             inMovement = false;
         }
+		else{
+			inMovement = true;
+		}
     }
 }
 

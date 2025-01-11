@@ -151,7 +151,7 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
     GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
+    inMovement=false;
     // Render the cubes
     for (int z = -1; z <= 1; z++) {
         for (int y = -1; y <= 1; y++) {
