@@ -114,7 +114,10 @@ inline void change_array_index(int indexArray[CUBE_FACE_SIZE], int paramArray[CU
 
 inline void rotation_checker(int before[], int after[], const glm::vec3& localAxis, int dir, int face) {
     if ((FaceMoving == 0) || (FaceMoving == face)) {
-        FaceMoving = face;
+		if(!inMovement){
+ 			FaceMoving = face;
+		}
+       
         rotate_face(before, localAxis, dir * clockwise * rotationAngle);
 
         totalAngle += clockwise * rotationAngle;
