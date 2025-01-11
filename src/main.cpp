@@ -142,7 +142,7 @@ int main() {
 
         Camera camera(width, height);
         camera.setPerspective(near,far);
-        glm::mat4 scaleS = scale(glm::mat4(1), glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 scaleS = scale(glm::mat4(1), glm::vec3(0.98f, 0.98f, 0.98f));
         
 
         glfwSetKeyCallback(window, key_callback);
