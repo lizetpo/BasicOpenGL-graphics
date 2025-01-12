@@ -51,20 +51,20 @@ bool global = false;
 glm::mat4 globalRotation = glm::mat4(1.0f); // Global rotation matrix for the entire cube
 
 
-// inline void normalize_positions() {
-//     for (int i = 0; i < CUBE_SIZE; i++) {
-//         // Extract the position from the transformation matrix
-//         glm::vec3 position = glm::vec3(allCubes[i].transMatrix[3]);
+inline void normalize_positions() {
+    for (int i = 0; i < CUBE_SIZE; i++) {
+        // Extract the position from the transformation matrix
+        glm::vec3 position = glm::vec3(allCubes[i].transMatrix[3]);
 
-//         // Snap positions to the nearest valid grid value (-1, 0, 1)
-//         position.x = glm::round(position.x);
-//         position.y = glm::round(position.y);
-//         position.z = glm::round(position.z);
+        // Snap positions to the nearest valid grid value (-1, 0, 1)
+        position.x = glm::round(position.x);
+        position.y = glm::round(position.y);
+        position.z = glm::round(position.z);
 
-//         // Update the transformation matrix with the snapped position
-//         allCubes[i].transMatrix[3] = glm::vec4(position, 1.0f);
-//     }
-// }
+        // Update the transformation matrix with the snapped position
+        allCubes[i].transMatrix[3] = glm::vec4(position, 1.0f);
+    }
+}
 
 inline void normalize_rotation_matrix(glm::mat4& matrix) {
     glm::vec3 xAxis = glm::normalize(glm::vec3(matrix[0]));
@@ -113,10 +113,10 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
 	 case 1:
 		 for (int i = 0; i < CUBE_FACE_SIZE; i++) {
             int cubeIndex = cubesIndex[cubes[i]];
-			 const glm::mat4 rotate_face_cube = glm::rotate(rot_angle, glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[0][0], allCubes[cubesIndex[cubes[i]]].transMatrix[0][1], allCubes[cubesIndex[cubes[i]]].transMatrix[0][2]));
+			 const glm::mat4 rotate_face_cube = glm::rotate( glm::radians(rot_angle), glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[0][0], allCubes[cubesIndex[cubes[i]]].transMatrix[0][1], allCubes[cubesIndex[cubes[i]]].transMatrix[0][2]));
 		     allCubes[cubesIndex[cubes[i]]].oldRotMatrix = allCubes[cubesIndex[cubes[i]]].rotMatrix;
 			 allCubes[cubesIndex[cubes[i]]].rotMatrix = rotate_face_cube*allCubes[cubesIndex[cubes[i]]].rotMatrix;
-                     normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);
+             normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);
 
 		 }
 
@@ -124,22 +124,22 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
 	 case 2:
 		 for (int i = 0; i < CUBE_FACE_SIZE; i++) {
             int cubeIndex = cubesIndex[cubes[i]];
-			 glm::mat4 rotate_face_cube = glm::rotate(rot_angle, glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[1][0],
+			 glm::mat4 rotate_face_cube = glm::rotate(glm::radians(rot_angle), glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[1][0],
 			                                               allCubes[cubesIndex[cubes[i]]].transMatrix[1][1],
 			                                               allCubes[cubesIndex[cubes[i]]].transMatrix[1][2]));
 			 allCubes[cubesIndex[cubes[i]]].oldRotMatrix = allCubes[cubesIndex[cubes[i]]].rotMatrix;
 			 allCubes[cubesIndex[cubes[i]]].rotMatrix = rotate_face_cube * allCubes[cubesIndex[cubes[i]]].rotMatrix;
-                     normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);
+              normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);
 
 		 }
 		 break;
 	 case 3:
 		 for (int i = 0; i < CUBE_FACE_SIZE; i++) {
             int cubeIndex = cubesIndex[cubes[i]];
-			 glm::mat4 rotate_face_cube =glm::rotate(rot_angle, glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[2][0], allCubes[cubesIndex[cubes[i]]].transMatrix[2][1], allCubes[cubesIndex[cubes[i]]].transMatrix[2][2]));
+			 glm::mat4 rotate_face_cube =glm::rotate(glm::radians(rot_angle), glm::vec3(allCubes[cubesIndex[cubes[i]]].transMatrix[2][0], allCubes[cubesIndex[cubes[i]]].transMatrix[2][1], allCubes[cubesIndex[cubes[i]]].transMatrix[2][2]));
 				 allCubes[cubesIndex[cubes[i]]].oldRotMatrix = allCubes[cubesIndex[cubes[i]]].rotMatrix;
 				 allCubes[cubesIndex[cubes[i]]].rotMatrix = rotate_face_cube*allCubes[cubesIndex[cubes[i]]].rotMatrix;
-                         normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);
+                normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);
 		 }
 		 break;
 	 default:

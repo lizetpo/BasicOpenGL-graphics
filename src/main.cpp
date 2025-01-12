@@ -166,7 +166,6 @@ int main() {
             for (int x = -1; x <= 1; x++) {
                 if (x == 0 && y == 0 && z == 0) continue; // Skip center cube if necessary
 
-
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
 
                 int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
