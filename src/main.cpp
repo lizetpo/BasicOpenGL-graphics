@@ -152,7 +152,7 @@ int main() {
     GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     inMovement=false;
-    // Render the cubes
+    //
     for (int z = -1; z <= 1; z++) {
         for (int y = -1; y <= 1; y++) {
             for (int x = -1; x <= 1; x++) {
@@ -163,12 +163,11 @@ int main() {
                 int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
                 // Translate and rotate each cube based on its individual transformations
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                
-                //glm::mat4 model = allCubes[index].rotMatrix *trans* scaleS;
-                //if(global){
-
                 glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
-               // }
+
+                if(global){
+                    model = allCubes[index].rotMatrix *trans* scaleS;
+                }
                 
                 
                 // Compute MVP (Model-View-Projection matrix)
