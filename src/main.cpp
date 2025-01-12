@@ -146,42 +146,42 @@ int main() {
 
 
     while (!glfwWindowShouldClose(window)) {
-    GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
-    GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    inMovement=false;
+        GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+        inMovement=false;
     //
-    for (int z = -1; z <= 1; z++) {
-        for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-                if (x == 0 && y == 0 && z == 0) continue; // Skip center cube if necessary
+        for (int z = -1; z <= 1; z++) {
+            for (int y = -1; y <= 1; y++) {
+                for (int x = -1; x <= 1; x++) {
+                    if (x == 0 && y == 0 && z == 0) continue; // Skip center cube if necessary
 
 
-                glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
+                    glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
 
-                int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
-                int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
-                // Translate and rotate each cube based on its individual transformations
-                glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
+                    int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
+                    int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
+                    // Translate and rotate each cube based on its individual transformations
+                    glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+                    glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
 
-                if(global){
-                    model = allCubes[cubeIndex].rotMatrix *trans* scaleS;
+                    if(global){
+                        model = allCubes[cubeIndex].rotMatrix *trans* scaleS;
+                    }
+                    // Compute MVP (Model-View-Projection matrix)
+                    
+
+                    glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
+
+                    shader.Bind();
+                    shader.SetUniform4f("u_Color", color);
+                    shader.SetUniformMat4f("u_MVP", mvp);
+                    shader.SetUniform1i("u_Texture", 0);
+                    va.Bind();
+                    ib.Bind();
+                    GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
                 }
-                // Compute MVP (Model-View-Projection matrix)
-                
-
-                glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
-
-                shader.Bind();
-                shader.SetUniform4f("u_Color", color);
-                shader.SetUniformMat4f("u_MVP", mvp);
-                shader.SetUniform1i("u_Texture", 0);
-                va.Bind();
-                ib.Bind();
-                GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
             }
         }
-    }
     
 
     // Normalize rotation matrices for cubes that were rotated
