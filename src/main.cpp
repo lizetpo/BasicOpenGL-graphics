@@ -1,8 +1,13 @@
+
+#define GLM_ENABLE_EXPERIMENTAL
+
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/matrix_interpolation.hpp>
 
 #include <Debugger.h>
 #include <VertexBuffer.h>
@@ -13,7 +18,8 @@
 #include <Texture.h>
 #include <Camera.h>
 #include <InputManager.h>
-
+#include <thread>
+#include <chrono>
 #include <iostream>
 
 /* Window size */
@@ -146,6 +152,10 @@ int main() {
 
 
     while (!glfwWindowShouldClose(window)) {
+
+    for (animation = 0; animation <= 40; animation++) {
+        // Delay for smooth animation
+        std::this_thread::sleep_for(std::chrono::milliseconds(25)); // Adjust speed by changing delay
     GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     inMovement=false;
@@ -162,11 +172,17 @@ int main() {
                 int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
                 // Translate and rotate each cube based on its individual transformations
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
+                 float progress = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
+                    glm::mat4 rotAnim = glm::interpolate(
+                        allCubes[cubeIndex].oldRotMatrix, // Starting rotation
+                        allCubes[cubeIndex].rotMatrix,    // Target rotation
+                        progress                          // Progress ratio
+                    );
+                //glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
 
-                if(global){
-                    model = allCubes[cubeIndex].rotMatrix *trans* scaleS;
-                }
+                //if(global){
+                    glm::mat4 model = rotAnim*trans* scaleS;
+                //}
                 // Compute MVP (Model-View-Projection matrix)
                 
 
@@ -182,18 +198,18 @@ int main() {
             }
         }
     }
-    
-
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+    }
     // Normalize rotation matrices for cubes that were rotated
     
         for (int i = 0; i < CUBE_SIZE; i++) {
-            normalize_rotation_matrix(allCubes[i].rotMatrix);
+        allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
         }
 
     global = false;
-    // Swap buffers and poll for input events
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+        inMovement = false; // Allow new movement
+    
 }
         
     }
