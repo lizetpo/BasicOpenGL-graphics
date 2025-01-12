@@ -51,18 +51,33 @@ bool global = false;
 glm::mat4 globalRotation = glm::mat4(1.0f); // Global rotation matrix for the entire cube
 
 
-// inline void normalize_rotation_matrix(glm::mat4& matrix) {
-//     glm::vec3 xAxis = glm::normalize(glm::vec3(matrix[0]));
-//     glm::vec3 yAxis = glm::normalize(glm::vec3(matrix[1]));
-//     glm::vec3 zAxis = glm::normalize(glm::vec3(matrix[2]));
+inline void normalize_positions() {
+    for (int i = 0; i < CUBE_SIZE; i++) {
+        // Extract the position from the transformation matrix
+        glm::vec3 position = glm::vec3(allCubes[i].transMatrix[3]);
 
-//     yAxis = glm::normalize(glm::cross(zAxis, xAxis));
-//     zAxis = glm::normalize(glm::cross(xAxis, yAxis));
+        // Snap positions to the nearest valid grid value (-1, 0, 1)
+        position.x = glm::round(position.x);
+        position.y = glm::round(position.y);
+        position.z = glm::round(position.z);
 
-//     matrix[0] = glm::vec4(xAxis, 0.0f);
-//     matrix[1] = glm::vec4(yAxis, 0.0f);
-//     matrix[2] = glm::vec4(zAxis, 0.0f);
-// }
+        // Update the transformation matrix with the snapped position
+        allCubes[i].transMatrix[3] = glm::vec4(position, 1.0f);
+    }
+}
+
+inline void normalize_rotation_matrix(glm::mat4& matrix) {
+    glm::vec3 xAxis = glm::normalize(glm::vec3(matrix[0]));
+    glm::vec3 yAxis = glm::normalize(glm::vec3(matrix[1]));
+    glm::vec3 zAxis = glm::normalize(glm::vec3(matrix[2]));
+
+    yAxis = glm::normalize(glm::cross(zAxis, xAxis));
+    zAxis = glm::normalize(glm::cross(xAxis, yAxis));
+
+    matrix[0] = glm::vec4(xAxis, 0.0f);
+    matrix[1] = glm::vec4(yAxis, 0.0f);
+    matrix[2] = glm::vec4(zAxis, 0.0f);
+}
 
 // inline void rotate_face(const int cubes[], const glm::vec3& localAxis, const float rot_angle) {
 //     inMovement = true;
@@ -119,6 +134,7 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
 	 default:
 		 break;
 	 }
+    
  };
 
 inline void print_state() {
@@ -783,42 +799,6 @@ inline void rotate_l() { // BY X
 	}
 }
 
-inline void mixer()
-{
-	
-	char func_name[6] = {'U','D','R','L','F','B'};
-	for (auto i=0;i<10;i++){
-	const auto function = rand() % 6; // random 0-5
-	std::cout << func_name[function] << " ";
-	std::cout << "\n";
-	switch (function)
-		{
-		case 0:
-			rotate_u();
-			break;
-		case 1:
-			rotate_d();
-			break;
-		case 2:
-			rotate_r();
-			break;
-		case 3:
-			rotate_l();
-			break;
-		case 4:
-			rotate_f();
-			break;
-		case 5:
-			rotate_b();
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-inline void solver() { // empty function
- }
 
 
 inline void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -873,36 +853,42 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				if (action == GLFW_PRESS)
 				{
 					rotate_r();
+                    normalize_positions();
 				}
 				break;
 			case GLFW_KEY_L:
 				if (action == GLFW_PRESS)
 				{
 					rotate_l();
+                    normalize_positions();
 				}
 				break;
 			case GLFW_KEY_U:
 				if (action == GLFW_PRESS)
 				{
 					rotate_u();
+                    normalize_positions();
 				}
 				break;
 			case GLFW_KEY_D:
 				if (action == GLFW_PRESS)
 				{
 					rotate_d();
+                    normalize_positions();
 				}
 				break;
 			case GLFW_KEY_B:
 				if (action == GLFW_PRESS)
 				{
 					rotate_b();
+                    normalize_positions();
 				}
 				break;
 			case GLFW_KEY_F:
 				if (action == GLFW_PRESS)
 				{
 					rotate_f();
+                    normalize_positions();
 				}
 				break;
 			case GLFW_KEY_SPACE:
@@ -920,17 +906,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 						rotationAngle = rotationAngle * 2;
 					}
 				break;
-			case GLFW_KEY_M:
-				if (action == GLFW_PRESS)
-				{
-					mixer();
-				}
-				break;
-			case GLFW_KEY_S:
-				if (action == GLFW_PRESS)
-				{
-				}
-				break;
+	
 			case GLFW_KEY_I:
 
 				inside = 1;

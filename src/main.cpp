@@ -204,6 +204,7 @@ int main() {
     // Normalize rotation matrices for cubes that were rotated
     
         for (int i = 0; i < CUBE_SIZE; i++) {
+            normalize_rotation_matrix(allCubes[i].rotMatrix);
         allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
         }
 
