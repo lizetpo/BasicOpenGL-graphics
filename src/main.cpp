@@ -98,6 +98,7 @@ int main() {
     
     reset_transformations();
 
+
     GLFWwindow* window = glfwCreateWindow(width, height, "Rubik's Cube", NULL, NULL);
     if (!window) {
         glfwTerminate();
@@ -179,12 +180,10 @@ int main() {
                         progress                          // Progress ratio
                     );
                 //glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
-
                 //if(global){
                     glm::mat4 model = rotAnim*trans* scaleS;
                 //}
                 // Compute MVP (Model-View-Projection matrix)
-                
 
                 glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
 
@@ -201,11 +200,13 @@ int main() {
     glfwSwapBuffers(window);
     glfwPollEvents();
     }
+    
     // Normalize rotation matrices for cubes that were rotated
     
         for (int i = 0; i < CUBE_SIZE; i++) {
-            normalize_rotation_matrix(allCubes[i].rotMatrix);
-        allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
+            int cubeIndex = cubesIndex[i];
+            normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);      
+            allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
         }
 
     global = false;
