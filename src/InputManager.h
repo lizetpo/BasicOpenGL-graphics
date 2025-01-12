@@ -121,7 +121,10 @@ inline void rotation_checker(int before[], int after[], const glm::vec3& localAx
 		if(!inMovement){
  			FaceMoving = face;
 		}
-       
+         // Transform the local axis using the global rotation matrix
+        //glm::vec3 transformedAxis = glm::vec3(globalRotationMatrix * glm::vec4(localAxis, 0.0f));
+
+        // Rotate the selected face
         rotate_face(before, localAxis, dir * clockwise * rotationAngle);
 
         totalAngle += clockwise * rotationAngle;
@@ -233,9 +236,9 @@ inline void rotate_r() { // Rotate around X-axis (Right face)
             rotation_checker(before, after, glm::vec3(1, 0, 0), 1, 5);
         } break;
         case 3: {
-            int before[9] = {2, 11, 20, 5, 14, 23, 8, 17, 26};
-            int after[9] = {20, 23, 26, 11, 14, 17, 2, 5, 8};
-            rotation_checker(before, after, glm::vec3(1, 0, 0), 1, 5);
+            int before[9] = {18, 9, 0, 21, 12, 3, 24, 15, 6};
+            int after[9] = {0, 3, 6, 9, 12, 15, 18, 21, 24};
+            rotation_checker(before, after, glm::vec3(1, 0, 0), 1, 6);
         } break;
         default:
             break;
@@ -250,9 +253,10 @@ inline void rotate_l() { // Rotate around X-axis (Left face)
             rotation_checker(before, after, glm::vec3(1, 0, 0), -1, 6);
         } break;
         case 3: {
-            int before[9] = {18, 9, 0, 21, 12, 3, 24, 15, 6};
-            int after[9] = {0, 3, 6, 9, 12, 15, 18, 21, 24};
-            rotation_checker(before, after, glm::vec3(1, 0, 0), -1, 6);
+           
+             int before[9] = {2, 11, 20, 5, 14, 23, 8, 17, 26};
+            int after[9] = {20, 23, 26, 11, 14, 17, 2, 5, 8};
+            rotation_checker(before, after, glm::vec3(1, 0, 0), -1, 5);
         } break;
         default:
             break;
@@ -282,7 +286,7 @@ void updateIndicesAfterGlobalRotation() {
         rotatedPos.z = glm::round(rotatedPos.z);
 
         // Ensure the values are clamped within the range [-1, 1]
-        rotatedPos = glm::clamp(rotatedPos, glm::vec3(-1.0f), glm::vec3(1.0f));
+        // rotatedPos = glm::clamp(rotatedPos, glm::vec3(-1.0f), glm::vec3(1.0f));
         
 
         // Recalculate the new grid position
@@ -305,7 +309,27 @@ void updateIndicesAfterGlobalRotation() {
     // Print the state for debugging
     print_state();
 }
+inline void help(glm::mat4 rotationMatrix){
+    globalRotationMatrix = rotationMatrix * globalRotationMatrix;
 
+        for (int i = 0; i < CUBE_SIZE; i++) {
+            allCubes[i].rotMatrix = rotationMatrix * allCubes[i].rotMatrix;
+            allCubes[i].transMatrix = rotationMatrix * allCubes[i].transMatrix;
+
+            // Snap positions to -1, 0, or 1
+            glm::vec3 position = glm::vec3(allCubes[i].transMatrix[3]);
+            position.x = glm::round(position.x);
+            position.y = glm::round(position.y);
+            position.z = glm::round(position.z);
+
+            allCubes[i].transMatrix[3] = glm::vec4(position, 1.0f);
+        }
+
+
+        // Update indices and snap positions
+        updateIndicesAfterGlobalRotation();
+           
+}
 
 inline void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
@@ -319,76 +343,25 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				if (action == GLFW_PRESS)
 					glfwSetWindowShouldClose(window, GLFW_TRUE);
 				break;
-			// case GLFW_KEY_UP:
-			// 	for (int i = 0; i < CUBE_SIZE; i++)
-			// 	{
-			// 		const glm::mat4 rotate1 = rotate(7.0f, glm::vec3(1, 0, 0));
-			// 		allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
-			// 		allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
-			// 		allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
-            //                             normalize_rotation_matrix(allCubes[i].transMatrix);
-
-            //         global = true;
-
-			// 	}
-            //      updateIndicesAfterGlobalRotation();
-
-			// 	break;
-			// case GLFW_KEY_DOWN:
-			// 	for (int i = 0; i < CUBE_SIZE; i++)
-			// 	{
-			// 		const glm::mat4 rotate1 = rotate(-7.0f, glm::vec3(1, 0, 0));
-			// 		allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
-			// 		allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
-			// 		allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
-            //         global = true;
-            //         normalize_rotation_matrix(allCubes[i].transMatrix);
-                
-
-			// 	}
-            //                      updateIndicesAfterGlobalRotation();
-
-			// 	break;
-
-			// case GLFW_KEY_RIGHT:
-			// 	for (int i = 0; i < CUBE_SIZE; i++)
-			// 	{
-			// 		const glm::mat4 rotate2 = rotate(7.0f, glm::vec3(0, 1, 0));
-			// 		allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
-			// 		allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
-			// 		allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix;
-            //         global = true;
-            //                             normalize_rotation_matrix(allCubes[i].transMatrix);
-
-			// 	}
-            //     updateIndicesAfterGlobalRotation();
-
-			// 	break;
-			// case GLFW_KEY_LEFT:
-			// 	for (int i = 0; i < CUBE_SIZE; i++)
-			// 	{
-			// 		const glm::mat4 rotate2 = rotate(-7.0f, glm::vec3(0, 1, 0));
-			// 		allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
-			// 		allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
-			// 		allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix;
-            //         global = true;
-            //         normalize_rotation_matrix(allCubes[i].transMatrix);
-
-			// 	}
-            //     updateIndicesAfterGlobalRotation();
-
-			// 	break;
+            global = true;
             case GLFW_KEY_UP:
-                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                help(rotationMatrix);
                 break;
             case GLFW_KEY_DOWN:
-                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                                help(rotationMatrix);
+
                 break;
             case GLFW_KEY_LEFT:
-                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                                help(rotationMatrix);
+
                 break;
             case GLFW_KEY_RIGHT:
-                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                                help(rotationMatrix);
+
                 break;
 			case GLFW_KEY_R:
 				if (action == GLFW_PRESS)
@@ -468,24 +441,7 @@ global = false;
 				break;
 			}
 
-        for (int i = 0; i < CUBE_SIZE; i++) {
-            allCubes[i].rotMatrix = rotationMatrix * allCubes[i].rotMatrix;
-            allCubes[i].transMatrix = rotationMatrix * allCubes[i].transMatrix;
-
-            // Snap positions to -1, 0, or 1
-            glm::vec3 position = glm::vec3(allCubes[i].transMatrix[3]);
-            position.x = glm::round(position.x);
-            position.y = glm::round(position.y);
-            position.z = glm::round(position.z);
-
-            allCubes[i].transMatrix[3] = glm::vec4(position, 1.0f);
-        }
-
-        globalRotationMatrix = rotationMatrix * globalRotationMatrix;
-
-        // Update indices and snap positions
-        updateIndicesAfterGlobalRotation();
-           
+        
 		}
 	}
 
