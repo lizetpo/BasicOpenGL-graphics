@@ -210,7 +210,7 @@ inline void rotation_checker(int before1[], int after1[], int axis1, int dir1, i
 			 FaceMoving = 0;
 			 totalAngle = 0.0f;
 			 change_array_index(before1, after1);
-              for (int i = 0; i < CUBE_FACE_SIZE; i++) {
+             for (int i = 0; i < CUBE_FACE_SIZE; i++) {
                 normalize_rotation_matrix(allCubes[cubesIndex[before1[i]]].rotMatrix);
             }
 		 }
@@ -627,4 +627,5 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				break;
 			}
 		}
+        normalize_positions();
 	}

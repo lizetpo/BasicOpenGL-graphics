@@ -184,6 +184,7 @@ int main() {
                 //}
                 // Compute MVP (Model-View-Projection matrix)
 
+
                 glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
 
                 shader.Bind();
