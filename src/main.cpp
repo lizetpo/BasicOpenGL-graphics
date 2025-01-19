@@ -22,13 +22,13 @@
 #include <chrono>
 #include <iostream>
 
+
 /* Window size */
 const unsigned int width = 800;
 const unsigned int height = 800;
 const float near = 0.1f;
 const float far = 100.0f;
 const float fov = 45.0f;  
-
 
 /* Full cube vertices with positions, colors, and texture coordinates */
 float vertices[] = {
@@ -65,6 +65,7 @@ float vertices[] = {
 };
 
 
+
 /* Indices for vertices order */
 unsigned int indices[] = { 0, 1, 2,
 		0, 2, 3,
@@ -97,6 +98,7 @@ int main() {
 				cubesIndex[z] = z;
 	}
     
+
     reset_transformations();
 
 
@@ -145,7 +147,6 @@ int main() {
         shader.Unbind();
 
         GLCall(glEnable(GL_DEPTH_TEST));
-
         Camera camera(width, height);
         camera.setPerspective(near,far);
         glm::mat4 scaleS = scale(glm::mat4(1), glm::vec3(0.98f, 0.98f, 0.98f));
@@ -157,21 +158,22 @@ int main() {
 
     for (animation = 0; animation <= 40; animation++) {
         // Delay for smooth animation
-        std::this_thread::sleep_for(std::chrono::milliseconds(25)); // Adjust speed by changing delay
+        //std::this_thread::sleep_for(std::chrono::milliseconds(25)); // Adjust speed by changing delay
     GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    inMovement=false;
+    
     //
     int index = 0;
     for (int z = -size + 1; z < size; z = z + 2) {
         for (int y = -size + 1; y < size; y = y + 2) {
             for (int x = size - 1; x >= -size +1; x = x - 2, index++) {
+
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
 
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
                 float frame_prog = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
-                    glm::mat4 animated_rotation = glm::interpolate(
-                        
+                glm::mat4 animated_rotation = glm::interpolate(
+  
                         allCubes[index].oldRotMatrix, // Starting rotation
                         allCubes[index].rotMatrix,    // Target rotation
                         frame_prog                          // Progress ratio

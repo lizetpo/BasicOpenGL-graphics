@@ -9,7 +9,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
-
+#include <thread>
+#include <chrono>
 #include <iostream>
 
 class Cube {
@@ -240,7 +241,48 @@ inline void rotate_left() { // BY X
 	
 }
 
+void randomMixer(int numMoves) {
+    std::ofstream mixerFile("mixer.txt");
+    if (!mixerFile.is_open()) {
+        std::cerr << "Error opening mixer.txt" << std::endl;
+        return;
+    }
 
+    // Define possible moves and directions
+    const char* moves[] = {"U", "D", "F", "B", "L", "R"};
+    const char* directions[] = {"", "'"}; // Normal and inverse moves
+
+    // Perform random moves
+    for (int i = 0; i < numMoves; i++) {
+        int move = rand() % 6;          // Random move index
+        int direction = rand() % 2;    // Random direction index
+
+        // Construct move string for logging
+        std::string moveStr = moves[move] + std::string(directions[direction]);
+        mixerFile << moveStr << " ";   // Log the move
+
+      
+
+        // Perform the move
+        if (moveStr == "U") {
+            rotate_up();
+        } else if (moveStr == "D") {
+            rotate_down();
+        } else if (moveStr == "F") {
+            rotate_front();
+        } else if (moveStr == "B") {
+            rotate_back();
+        } else if (moveStr == "L") {
+            rotate_left();
+        } else if (moveStr == "R") {
+            rotate_right();
+        }
+
+       
+    }
+
+    mixerFile.close();
+}
 
 inline void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
@@ -327,6 +369,12 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					rotate_front();
 				}
 				break;
+			case GLFW_KEY_M:
+				if (action == GLFW_PRESS)
+					{
+						randomMixer(20);
+					}
+					break;
 			case GLFW_KEY_SPACE:
 				if (action == GLFW_PRESS)
 					clockwise = clockwise * -1;
