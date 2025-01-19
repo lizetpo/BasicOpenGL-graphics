@@ -17,12 +17,12 @@ void Camera::setPerspective(float near, float far) {
 
     m_Projection = glm::perspective(glm::radians(45.0f), 1.0f, near, far);
 
-    m_Position =   glm::vec3(3.0f, 3.0f, -9.0f);   // Adjust the distance (10, 10, 20) as needed
-    m_Orientation = glm::vec3(0.0f, 0.0f, 1.0f); // Keep looking forward
+    m_Position =   glm::vec3(0.0f, 0.0f, 20.0f);   // Adjust the distance (10, 10, 20) as needed
+   // m_Orientation = glm::vec3(0.0f, 0.0f, 1.0f); // Keep looking forward
 
     m_View = glm::lookAt(
-        glm::vec3(3.0f, 3.0f, -10.0f), // Adjust z-value if needed
-        glm::vec3(0.0f, 0.0f, 0.0f), // Look at the origin
+        m_Position, // Adjust z-value if needed
+        m_Position+m_Orientation, // Look at the origin
         glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
     );
 }

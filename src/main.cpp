@@ -17,7 +17,7 @@
 #include <Shader.h>
 #include <Texture.h>
 #include <Camera.h>
-#include <InputManager.h>
+#include <Cube.h>
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -201,6 +201,7 @@ int main() {
         for (int i = 0; i < CUBE_SIZE; i++) { 
             allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
         }
+
 
     global = false;
     inMovement = false; // Allow new movement

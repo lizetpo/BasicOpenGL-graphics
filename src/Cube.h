@@ -81,7 +81,7 @@ inline void normalize_rotation_matrix(glm::mat4& matrix) {
 
 
 
-inline void rotate_face(const int cubes[], const int direction, const float rot_angle) {
+inline void rotate_cube_side(const int cubes[], const int direction, const float rot_angle) {
 	 inMovement = true;
 	 animation = 0;
 
@@ -126,13 +126,7 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
     
  };
 
-// inline void print_state() {
-//     for (int i = 0; i < CUBE_SIZE; i++) {
-//     glm::vec3 cubePos = glm::vec3(allCubes[i].transMatrix[3]); // Extract position from transformation matrix
-//     std::cout << "Cube " << i << ": Position = " << cubePos.x << ", " << cubePos.y << ", " << cubePos.z << std::endl;
-// }
-//     std::cout << "\n";
-// }
+
 
 inline bool compare_floats(float A, float B) {
     const float epsilon = 0.01f; // Adjusted epsilon for better precision
@@ -152,7 +146,7 @@ inline void normalize_index(int indexArray[CUBE_FACE_SIZE], int paramArray[CUBE_
             cubesIndex[paramArray[i]] = temp[indexArray[i]];
         }
     }
-    //print_state();  // Debugging: Print cube state after index update
+   
 }
 
 
@@ -179,7 +173,7 @@ inline void rotation_checker(int before1[], int after1[], int axis1, int dir1, i
          std::cout << rotationAngle;
          std::cout << "\n";
 
-		 rotate_face(before1, axis1, dir1*clockwise*rotationAngle);
+		 rotate_cube_side(before1, axis1, dir1*clockwise*rotationAngle);
         
 		 totalAngle = totalAngle + clockwise*rotationAngle;
 		 if (compare_floats(fabs(totalAngle), 90.0f)) {
@@ -196,33 +190,33 @@ inline void rotation_checker(int before1[], int after1[], int axis1, int dir1, i
 		 }
 		 else if (totalAngle > 180.0f) {
 			 totalAngle = -rotationAngle;
-			 rotate_face(before1, 2, dir1*clockwise*-rotationAngle);
+			 rotate_cube_side(before1, 2, dir1*clockwise*-rotationAngle);
         
 		 }
 	 }
  }
 
 
-inline void rotate_u() { // BY Y
+inline void rotate_up() { // BY Y
 	int before[9] = { 6,7,8,15,16,17,24,25,26 };
 	int after[9] = { 8,17,26,7,16,25,6,15,24 };
 	rotation_checker(before, after, 2, -1, 1);
 	}
 
-inline void rotate_d() { // BY Y
+inline void rotate_down() { // BY Y
 	int before[9] = { 0,1,2,9,10,11,18,19,20 };
 	int after[9] = { 2,11,20,1,10,19,0,9,18 };
 	rotation_checker(before, after, 2, -1, 2);
 
 }
 
-inline void rotate_f() { // BY Z
+inline void rotate_front() { // BY Z
 		int before[9] = { 0,1,2,3,4,5,6,7,8 };
 		int after[9] = { 2,5,8,1,4,7,0,3,6 };
 		rotation_checker(before, after, 3, 1, 3);
 }
 
-inline void rotate_b() { // BY Z
+inline void rotate_back() { // BY Z
 	
 		int before[9] = { 18,19,20,21,22,23,24,25,26 };
 		int after[9] = { 20,23,26,19,22,25,18,21,24 };
@@ -230,7 +224,7 @@ inline void rotate_b() { // BY Z
 
 }
 
-inline void rotate_r() { // BY X
+inline void rotate_right() { // BY X
 		int before[9] = { 2,11,20,5,14,23,8,17,26 };
 		int after[9] = { 20,23,26,11,14,17,2,5,8 };
 		rotation_checker(before, after, 1, 1, 5);
@@ -238,7 +232,7 @@ inline void rotate_r() { // BY X
 	
 }
 
-inline void rotate_l() { // BY X
+inline void rotate_left() { // BY X
 	
 		int before[9] = { 18,9,0,21,12,3,24,15,6 };
 		int after[9] = { 0,3,6,9,12,15,18,21,24 };
@@ -300,37 +294,37 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_R:
 				if (action == GLFW_PRESS)
 				{
-					rotate_r();
+					rotate_right();
 				}
 				break;
 			case GLFW_KEY_L:
 				if (action == GLFW_PRESS)
 				{
-					rotate_l();
+					rotate_left();
 				}
 				break;
 			case GLFW_KEY_U:
 				if (action == GLFW_PRESS)
 				{
-					rotate_u();
+					rotate_up();
 				}
 				break;
 			case GLFW_KEY_D:
 				if (action == GLFW_PRESS)
 				{
-					rotate_d();
+					rotate_down();
 				}
 				break;
 			case GLFW_KEY_B:
 				if (action == GLFW_PRESS)
 				{
-					rotate_b();
+					rotate_back();
 				}
 				break;
 			case GLFW_KEY_F:
 				if (action == GLFW_PRESS)
 				{
-					rotate_f();
+					rotate_front();
 				}
 				break;
 			case GLFW_KEY_SPACE:
