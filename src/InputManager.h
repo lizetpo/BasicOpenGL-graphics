@@ -79,36 +79,12 @@ inline void normalize_rotation_matrix(glm::mat4& matrix) {
     matrix[2] = glm::vec4(zAxis, 0.0f);
 }
 
-// inline void rotate_face(const int cubes[], const glm::vec3& localAxis, const float rot_angle) {
-//     inMovement = true;
-//     animation = 0;
-
-//     // Transform the local axis using the global rotation matrix
-
-//     glm::mat4 rotate_face_matrix = glm::rotate(glm::mat4(1.0f), glm::radians(rot_angle), localAxis);
-
-//      for (int i = 0; i < CUBE_FACE_SIZE; i++) {
-//          int cubeIndex = cubesIndex[cubes[i]];
-
-//         // Update the oldRotMatrix to store the current rotMatrix before applying the new rotation
-		
-//         allCubes[cubeIndex].oldRotMatrix = allCubes[cubeIndex].rotMatrix;
-
-//         // Apply the new rotation based on the previous rotation
-//         allCubes[cubeIndex].rotMatrix = rotate_face_matrix*allCubes[cubeIndex].rotMatrix ;
-
-//         // Normalize the matrix to avoid precision errors over time
-//         normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);
-//     }
-// }
 
 
 inline void rotate_face(const int cubes[], const int direction, const float rot_angle) {
 	 inMovement = true;
 	 animation = 0;
 
-     std::cout << rot_angle;
-         std::cout << "\n";
 	 switch (direction) {
 	 case 1:
 		 for (int i = 0; i < CUBE_FACE_SIZE; i++) {
@@ -150,20 +126,20 @@ inline void rotate_face(const int cubes[], const int direction, const float rot_
     
  };
 
-inline void print_state() {
-    for (int i = 0; i < CUBE_SIZE; i++) {
-    glm::vec3 cubePos = glm::vec3(allCubes[i].transMatrix[3]); // Extract position from transformation matrix
-    std::cout << "Cube " << i << ": Position = " << cubePos.x << ", " << cubePos.y << ", " << cubePos.z << std::endl;
-}
-    std::cout << "\n";
-}
+// inline void print_state() {
+//     for (int i = 0; i < CUBE_SIZE; i++) {
+//     glm::vec3 cubePos = glm::vec3(allCubes[i].transMatrix[3]); // Extract position from transformation matrix
+//     std::cout << "Cube " << i << ": Position = " << cubePos.x << ", " << cubePos.y << ", " << cubePos.z << std::endl;
+// }
+//     std::cout << "\n";
+// }
 
 inline bool compare_floats(float A, float B) {
     const float epsilon = 0.01f; // Adjusted epsilon for better precision
     return (fabs(A - B) < epsilon);
 }
 
-inline void change_array_index(int indexArray[CUBE_FACE_SIZE], int paramArray[CUBE_FACE_SIZE]) {
+inline void normalize_index(int indexArray[CUBE_FACE_SIZE], int paramArray[CUBE_FACE_SIZE]) {
     int temp[CUBE_SIZE];
     for (int i = 0; i < CUBE_SIZE; i++) {
         temp[i] = cubesIndex[i];
@@ -176,7 +152,7 @@ inline void change_array_index(int indexArray[CUBE_FACE_SIZE], int paramArray[CU
             cubesIndex[paramArray[i]] = temp[indexArray[i]];
         }
     }
-    print_state();  // Debugging: Print cube state after index update
+    //print_state();  // Debugging: Print cube state after index update
 }
 
 
@@ -209,26 +185,26 @@ inline void rotation_checker(int before1[], int after1[], int axis1, int dir1, i
 		 if (compare_floats(fabs(totalAngle), 90.0f)) {
 			 FaceMoving = 0;
 			 totalAngle = 0.0f;
-			 change_array_index(before1, after1);
-             for (int i = 0; i < CUBE_FACE_SIZE; i++) {
-                normalize_rotation_matrix(allCubes[cubesIndex[before1[i]]].rotMatrix);
-            }
+			 normalize_index(before1, after1);
+            //  for (int i = 0; i < CUBE_FACE_SIZE; i++) {
+            //     normalize_rotation_matrix(allCubes[cubesIndex[before1[i]]].rotMatrix);
+            // }
 		 }
 		 else if (compare_floats(fabs(totalAngle), 180.0f)) {
 			 FaceMoving = 0;
 			 totalAngle = 0.0f;
-			 change_array_index(before1, after1);
-			 change_array_index(before1, after1);
-              for (int i = 0; i < CUBE_FACE_SIZE; i++) {
-                normalize_rotation_matrix(allCubes[cubesIndex[before1[i]]].rotMatrix);
-            }
+			 normalize_index(before1, after1);
+			 normalize_index(before1, after1);
+            //   for (int i = 0; i < CUBE_FACE_SIZE; i++) {
+            //     normalize_rotation_matrix(allCubes[cubesIndex[before1[i]]].rotMatrix);
+            // }
 		 }
 		 else if (totalAngle > 180.0f) {
 			 totalAngle = -rotationAngle;
 			 rotate_face(before1, 2, dir1*clockwise*-rotationAngle);
-              for (int i = 0; i < CUBE_FACE_SIZE; i++) {
-                normalize_rotation_matrix(allCubes[cubesIndex[before1[i]]].rotMatrix);
-            }
+            //   for (int i = 0; i < CUBE_FACE_SIZE; i++) {
+            //     normalize_rotation_matrix(allCubes[cubesIndex[before1[i]]].rotMatrix);
+            // }
 		 }
 	 }
  }
@@ -531,6 +507,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
+					 normalize_positions();
 				}
 				break;
 			case GLFW_KEY_DOWN:
@@ -539,7 +516,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					const glm::mat4 rotate1 = glm::rotate(-7.0f, glm::vec3(1, 0, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
-					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
+					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix; normalize_positions();
 				}
 				break;
 
@@ -549,7 +526,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					const glm::mat4 rotate2 =glm::rotate(7.0f, glm::vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
-					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix;
+					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; normalize_positions();
 				}
 				break;
 			case GLFW_KEY_LEFT:
@@ -558,7 +535,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					const glm::mat4 rotate2 = glm::rotate(-7.0f,glm:: vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
-					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix;
+					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; normalize_positions();
 				}
 				break;
 			case GLFW_KEY_R:
@@ -627,5 +604,5 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				break;
 			}
 		}
-        normalize_positions();
+       
 	}

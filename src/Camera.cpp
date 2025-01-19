@@ -21,7 +21,7 @@ void Camera::setPerspective(float near, float far) {
     m_Orientation = glm::vec3(0.0f, 0.0f, 1.0f); // Keep looking forward
 
     m_View = glm::lookAt(
-        glm::vec3(3.0f, 3.0f, -9.0f), // Adjust z-value if needed
+        glm::vec3(3.0f, 3.0f, -10.0f), // Adjust z-value if needed
         glm::vec3(0.0f, 0.0f, 0.0f), // Look at the origin
         glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
     );

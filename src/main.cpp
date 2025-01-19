@@ -27,40 +27,41 @@ const unsigned int width = 800;
 const unsigned int height = 800;
 const float near = 0.1f;
 const float far = 100.0f;
-const float fov = 45.0f;  // Field Of View in degrees
+const float fov = 45.0f;  
+
 
 /* Full cube vertices with positions, colors, and texture coordinates */
 float vertices[] = {
     // positions          // colors         // texCoords
-    -0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // Back face
-     0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // Back face
+     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+     1.0f,  1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
 
-    -0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // Front face
-     0.5f, -0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // Front face
+     1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
 
-    -0.5f, -0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,  // Left face
-    -0.5f,  0.5f, -0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,  // Left face
+    -1.0f,  1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    -1.0f,  1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 
-     0.5f, -0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // Right face
-     0.5f,  0.5f, -0.5f,   1.0f, 1.0f, 0.0f,   1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // Right face
+     1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
 
-    -0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 1.0f,   0.0f, 0.0f,  // Bottom face
-    -0.5f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,   1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,   1.0f, 0.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   0.0f, 0.0f,  // Bottom face
+    -1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 
-    -0.5f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,   0.0f, 0.0f,  // Top face
-    -0.5f,  0.5f,  0.5f,   0.0f, 1.0f, 1.0f,   1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,   0.0f, 1.0f, 1.0f,   1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 0.0f,  // Top face
+    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+     1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
 };
 
 
@@ -161,15 +162,14 @@ int main() {
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     inMovement=false;
     //
-    for (int z = -1; z <= 1; z++) {
-        for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-                if (x == 0 && y == 0 && z == 0) continue; // Skip center cube if necessary
-
+   int cubeIndex = 0;
+			for (int z = -size + 1; z < size; z = z + 2) {
+				for (int y = -size + 1; y < size; y = y + 2) {
+					for (int x = size - 1; x >= -size +1; x = x - 2, cubeIndex++) {
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
 
-                int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
-                int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
+                //int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
+                //int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
                 // Translate and rotate each cube based on its individual transformations
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
                  float progress = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
@@ -178,9 +178,9 @@ int main() {
                         allCubes[cubeIndex].rotMatrix,    // Target rotation
                         progress                          // Progress ratio
                     );
-                //glm::mat4 model =trans* allCubes[cubeIndex].rotMatrix * scaleS;
+               
                 //if(global){
-                    glm::mat4 model = rotAnim*trans* scaleS;
+                    glm::mat4 model = rotAnim *trans* scaleS;
                 //}
                 // Compute MVP (Model-View-Projection matrix)
 
@@ -197,20 +197,21 @@ int main() {
             }
         }
     }
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+       
     }
     
     // Normalize rotation matrices for cubes that were rotated
     
         for (int i = 0; i < CUBE_SIZE; i++) {
-            int cubeIndex = cubesIndex[i];
-            normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);      
+            //int cubeIndex = cubesIndex[i];
+            //normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);      
             allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
         }
 
     global = false;
-        inMovement = false; // Allow new movement
+    inMovement = false; // Allow new movement
     
 }
         
