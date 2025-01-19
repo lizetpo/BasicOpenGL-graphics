@@ -381,7 +381,10 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 				break;
 			case GLFW_KEY_Z:
 				if (action == GLFW_PRESS)
-					rotationAngle = rotationAngle / 2;
+					if(rotationAngle> 45){
+						rotationAngle = rotationAngle / 2;
+					}
+					
 				break;
 			case GLFW_KEY_A:
 				if (action == GLFW_PRESS)
