@@ -162,28 +162,22 @@ int main() {
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
     inMovement=false;
     //
-   int cubeIndex = 0;
-			for (int z = -size + 1; z < size; z = z + 2) {
-				for (int y = -size + 1; y < size; y = y + 2) {
-					for (int x = size - 1; x >= -size +1; x = x - 2, cubeIndex++) {
+    int index = 0;
+    for (int z = -size + 1; z < size; z = z + 2) {
+        for (int y = -size + 1; y < size; y = y + 2) {
+            for (int x = size - 1; x >= -size +1; x = x - 2, index++) {
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
 
-                //int index = (z + 1) * size * size + (y + 1) * size + (x + 1);
-                //int cubeIndex = cubesIndex[index];  // Map to the correct logical cube after rotations
-                // Translate and rotate each cube based on its individual transformations
                 glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                 float progress = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
-                    glm::mat4 rotAnim = glm::interpolate(
-                        allCubes[cubeIndex].oldRotMatrix, // Starting rotation
-                        allCubes[cubeIndex].rotMatrix,    // Target rotation
-                        progress                          // Progress ratio
+                float frame_prog = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
+                    glm::mat4 animated_rotation = glm::interpolate(
+                        
+                        allCubes[index].oldRotMatrix, // Starting rotation
+                        allCubes[index].rotMatrix,    // Target rotation
+                        frame_prog                          // Progress ratio
                     );
                
-                //if(global){
-                    glm::mat4 model = rotAnim *trans* scaleS;
-                //}
-                // Compute MVP (Model-View-Projection matrix)
-
+                glm::mat4 model = animated_rotation *trans* scaleS;
 
                 glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
 
@@ -203,10 +197,8 @@ int main() {
     }
     
     // Normalize rotation matrices for cubes that were rotated
-    
-        for (int i = 0; i < CUBE_SIZE; i++) {
-            //int cubeIndex = cubesIndex[i];
-            //normalize_rotation_matrix(allCubes[cubeIndex].rotMatrix);      
+
+        for (int i = 0; i < CUBE_SIZE; i++) { 
             allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
         }
 
