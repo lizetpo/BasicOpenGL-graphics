@@ -33,8 +33,9 @@ public:
 };
 
 static const int size = 3;
-static const int CUBE_SIZE = size * size * size;
-static const int CUBE_FACE_SIZE = size * size;
+static const int CUBE_SIZE = 27;
+static const int CUBE_FACE_SIZE = 9;
+bool pickingMode = false; // Declare globally or inside relevant class
 
 
 int FaceMoving = 0;
@@ -44,9 +45,8 @@ int clockwise = 1;
 float rotationAngle = 90.0f; // Renamed variable
 Cube allCubes[CUBE_SIZE];
 int cubesIndex[CUBE_SIZE];
-float angleSum = 0.0f;
 int animation;
-int inside = 0;
+
 
 
 inline void normalize_positions() {
@@ -208,34 +208,28 @@ inline void rotate_down() { // BY Y
 
 }
 
-inline void rotate_front() { // BY Z
-		int before[9] = { 0,1,2,3,4,5,6,7,8 };
-		int after[9] = { 2,5,8,1,4,7,0,3,6 };
-		rotation_checker(before, after, 3, 1, 3);
+inline void rotate_front() { // Rotate around Z-axis (Clockwise)
+    int before[9] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+    int after[9] = { 2, 5, 8, 1, 4, 7, 0, 3, 6 }; // Indices for clockwise rotation
+    rotation_checker(before, after, 3, -1, 3); // Axis: Z, Direction: Clockwise
 }
 
-inline void rotate_back() { // BY Z
-	
-		int before[9] = { 18,19,20,21,22,23,24,25,26 };
-		int after[9] = { 20,23,26,19,22,25,18,21,24 };
-		rotation_checker(before, after, 3, 1, 4);
-
+inline void rotate_back() { // Rotate around Z-axis (Counter-Clockwise)
+    int before[9] = { 18, 19, 20, 21, 22, 23, 24, 25, 26 };
+    int after[9] = { 20, 23, 26, 19, 22, 25, 18, 21, 24 }; // Indices for counter-clockwise rotation
+    rotation_checker(before, after, 3, 1, 4); // Axis: Z, Direction: Counter-Clockwise
 }
 
-inline void rotate_right() { // BY X
-		int before[9] = { 2,11,20,5,14,23,8,17,26 };
-		int after[9] = { 20,23,26,11,14,17,2,5,8 };
-		rotation_checker(before, after, 1, 1, 5);
-	
-	
+inline void rotate_right() { // Rotate around X-axis (Clockwise)
+    int before[9] = { 2, 11, 20, 5, 14, 23, 8, 17, 26 };
+    int after[9] = { 20, 23, 26, 11, 14, 17, 2, 5, 8 }; // Indices for clockwise rotation
+    rotation_checker(before, after, 1, -1, 5); // Axis: X, Direction: Clockwise
 }
 
-inline void rotate_left() { // BY X
-	
-		int before[9] = { 18,9,0,21,12,3,24,15,6 };
-		int after[9] = { 0,3,6,9,12,15,18,21,24 };
-		rotation_checker(before, after, 1, -1, 6);
-	
+inline void rotate_left() { // Rotate around X-axis (Counter-Clockwise)
+    int before[9] = { 18, 9, 0, 21, 12, 3, 24, 15, 6 };
+    int after[9] = { 0, 3, 6, 9, 12, 15, 18, 21, 24 }; // Indices for counter-clockwise rotation
+    rotation_checker(before, after, 1, 1, 6); // Axis: X, Direction: Counter-Clockwise
 }
 
 void randomMixer(int numMoves) {
@@ -258,8 +252,7 @@ void randomMixer(int numMoves) {
         std::string moveStr = moves[move] + std::string(directions[direction]);
         mixerFile << moveStr << " ";   // Log the move
 
-      
-
+    
         // Perform the move
         if (moveStr == "U") {
             rotate_up();
@@ -281,6 +274,15 @@ void randomMixer(int numMoves) {
     mixerFile.close();
 }
 
+
+inline void initializeIndicesOnly()
+{
+    for (int i = 0; i < CUBE_SIZE; i++)
+    {
+        cubesIndex[i] = i; // Reset the indices to their default order
+    }
+}
+
 inline void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		
@@ -293,41 +295,42 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					glfwSetWindowShouldClose(window, GLFW_TRUE);
 				break;
 			case GLFW_KEY_UP:
+			
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate1 = glm::rotate(glm::radians(45.0f), glm::vec3(1, 0, 0));
+					const glm::mat4 rotate1 = glm::rotate(glm::radians(12.0f), glm::vec3(1, 0, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
-					 normalize_positions();
+					 
 				}
 				break;
 			case GLFW_KEY_DOWN:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate1 = glm::rotate(glm::radians(-45.0f), glm::vec3(1, 0, 0));
+					const glm::mat4 rotate1 = glm::rotate(glm::radians(-12.0f), glm::vec3(1, 0, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
-					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix; normalize_positions();
+					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix; 
 				}
 				break;
 
 			case GLFW_KEY_RIGHT:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate2 =glm::rotate(glm::radians(45.0f), glm::vec3(0, 1, 0));
+					const glm::mat4 rotate2 =glm::rotate(glm::radians(12.0f), glm::vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
-					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; normalize_positions();
+					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; 
 				}
 				break;
 			case GLFW_KEY_LEFT:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate2 = glm::rotate(glm::radians(-45.0f),glm:: vec3(0, 1, 0));
+					const glm::mat4 rotate2 = glm::rotate(glm::radians(-12.0f),glm:: vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
-					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; normalize_positions();
+					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; 
 				}
 				break;
 			case GLFW_KEY_R:
@@ -383,6 +386,10 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					}
 					
 				break;
+			case GLFW_KEY_P:
+				if (action == GLFW_PRESS)
+					pickingMode = !pickingMode; 
+				break;
 			case GLFW_KEY_A:
 				if (action == GLFW_PRESS)
 					if (rotationAngle <= 90)
@@ -391,15 +398,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					}
 				break;
 	
-			case GLFW_KEY_I:
-
-				inside = 1;
-				break;
-
-			case GLFW_KEY_O:
-
-				inside = 0;
-				break;
+		
 
 			default:
 				break;

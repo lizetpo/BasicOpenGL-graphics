@@ -87,8 +87,8 @@ unsigned int indices[] = {
 		23, 22, 20
 	};
 
-
 //main
+
 int main() {
     std::cout.flush();
 
@@ -194,6 +194,7 @@ int main() {
             glfwPollEvents();
         
         }
+
     
         finalize_rotation();
         inMovement = false; // Allow new movement
