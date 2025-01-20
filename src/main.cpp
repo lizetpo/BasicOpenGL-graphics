@@ -35,70 +35,61 @@ const float fov = 45.0f;
 
 /* Full cube vertices with positions, colors, and texture coordinates */
 float vertices[] = {
-    // Front face (Z+)
-    -1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left (green)
-     1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
-     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f, // Top-right
-    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+    // positions          // colors         // texCoords
+    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f,  // Back face
+     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+     1.0f,  1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
 
-    // Back face (Z-)
-    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f, // Bottom-left (red)
-     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
-     1.0f,  1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // Top-right
-    -1.0f,  1.0f, -1.0f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f, // Top-left
+    -1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // Front face
+     1.0f, -1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
 
-    // Left face (X-)
-    -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // Bottom-left (blue)
-    -1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f, // Bottom-right
-    -1.0f,  1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f, // Top-right
-    -1.0f,  1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // Top-left
+    -1.0f, -1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,  // Left face
+    -1.0f,  1.0f, -1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+    -1.0f,  1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+    -1.0f, -1.0f,  1.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 
-    // Right face (X+)
-     1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f, // Bottom-left (yellow)
-     1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   1.0f, 0.0f, // Bottom-right
-     1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // Top-right
-     1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f, // Top-left
+     1.0f, -1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // Right face
+     1.0f,  1.0f, -1.0f,   1.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+     1.0f, -1.0f,  1.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
 
-    // Bottom face (Y-)
-    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   0.0f, 0.0f, // Bottom-left (magenta)
-     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f, // Bottom-right
-     1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 1.0f, // Top-right
-    -1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   0.0f, 1.0f, // Top-left
+    -1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   0.0f, 0.0f,  // Bottom face
+    -1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+     1.0f, -1.0f,  1.0f,   1.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+     1.0f, -1.0f, -1.0f,   1.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 
-    // Top face (Y+)
-    -1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 0.0f, // Bottom-left (cyan)
-    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   1.0f, 0.0f, // Bottom-right
-     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   1.0f, 1.0f, // Top-right
-     1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f, // Top-left
+    -1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 0.0f,  // Top face
+    -1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f,   0.0f, 1.0f, 1.0f,   1.0f, 1.0f,
+     1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
 };
+
 
 
 /* Indices for vertices order */
-unsigned int indices[] = {
-    // Front face (Z+)
-    0, 1, 2,
-    0, 2, 3,
+unsigned int indices[] = { 
+        0, 1, 2,
+		0, 2, 3,
 
-    // Back face (Z-)
-    4, 5, 6,
-    4, 6, 7,
+		6, 5, 4,
+		7, 6, 4,
 
-    // Left face (X-)
-    8, 9, 10,
-    8, 10, 11,
+		10, 9, 8,
+		11, 10, 8,
 
-    // Right face (X+)
-    12, 13, 14,
-    12, 14, 15,
+		12, 13, 14,
+		12, 14, 15,
 
-    // Bottom face (Y-)
-    16, 17, 18,
-    16, 18, 19,
+		16, 17, 18,
+		16, 18, 19,
 
-    // Top face (Y+)
-    20, 21, 22,
-    20, 22, 23
-};
+		22, 21, 20,
+		23, 22, 20
+	};
+
 
 //main
 int main() {
@@ -112,10 +103,7 @@ int main() {
 	}
     
 
-//     //reset_transformations();
-// for (int i = 0; i < CUBE_SIZE; i++) {
-//     std::cout << "Cube " << i << " Orientation: " << glm::to_string(allCubes[i].rotMatrix) << std::endl;
-// }
+
 
     GLFWwindow* window = glfwCreateWindow(width, height, "Rubik's Cube", NULL, NULL);
     if (!window) {

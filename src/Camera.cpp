@@ -12,6 +12,7 @@ void Camera::SetPerspective( float near, float far)
     m_View = glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
 }
 
+
 void Camera::SetOrthographic(float near, float far)
 {
     m_Near = near;

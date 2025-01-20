@@ -241,6 +241,7 @@ inline void rotate_left() { // BY X
 	
 }
 
+
 void randomMixer(int numMoves) {
     std::ofstream mixerFile("mixer.txt");
     if (!mixerFile.is_open()) {
