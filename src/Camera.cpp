@@ -1,31 +1,45 @@
 #include <Camera.h>
-#include <iostream>
 
-// Track mouse button states
-bool isLeftMousePressed = false;
-bool isRightMousePressed = false;
+void Camera::SetPerspective( float near, float far)
+{
+    m_Aspect = (float) m_Width / (float) m_Height;
+    m_FOVdegree = 45.0f;
+    m_Near = near;
+    m_Far = far;
+
+    // Rest Projection and View matrices
+    m_Projection = glm::perspective(glm::radians(m_FOVdegree), m_Aspect, near, far);
+    m_View = glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
+}
 
 void Camera::SetOrthographic(float near, float far)
 {
     m_Near = near;
     m_Far = far;
 
+    // Rest Projection and View matrices
     m_Projection = glm::ortho(m_Left, m_Right, m_Bottom, m_Top, near, far);
-    m_View = glm::lookAt(m_Position, m_Position + m_Orientation, m_Up);
+    m_View = lookAt(m_Position, m_Position + m_Orientation, m_Up);
 }
 
-void Camera::setPerspective(float near, float far) {
-    m_Near = near;
-    m_Far = far;
+void Camera::TranslateProjection(glm::vec3 trans)
+{
+    m_Projection = glm::translate(m_Projection, trans);
+}
 
-    m_Projection = glm::perspective(glm::radians(45.0f), 1.0f, near, far);
+void Camera::TranslateView(glm::vec3 trans)
+{
+    m_View = glm::translate(m_View, trans);
+}
 
-    m_Position = glm::vec3(0.0f, 0.0f, 20.0f);
-    m_View = glm::lookAt(
-        m_Position, // Adjust z-value if needed
-       m_Position+m_Orientation, // Look at the origin
-        glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
-    );
+void Camera::RotateProjection(float angle, glm::vec3 rot)
+{
+    m_Projection = glm::rotate(m_Projection, angle, rot);
+}
+
+void Camera::RotateView(float angle, glm::vec3 rot)
+{
+    m_View = glm::rotate(m_View, angle, rot);
 }
 
 /////////////////////
@@ -34,27 +48,29 @@ void Camera::setPerspective(float near, float far) {
 
 void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods)
 {
-    Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
+    Camera* camera = (Camera*) glfwGetWindowUserPointer(window);
     if (!camera) {
         std::cout << "Warning: Camera wasn't set as the Window User Pointer! KeyCallback is skipped" << std::endl;
         return;
     }
+
+    float sensitivity = camera->m_KeySensitivity;
 
     if (action == GLFW_PRESS || action == GLFW_REPEAT)
     {
         switch (key)
         {
             case GLFW_KEY_UP:
-                std::cout << "UP Pressed" << std::endl;
+                camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
                 break;
             case GLFW_KEY_DOWN:
-                std::cout << "DOWN Pressed" << std::endl;
+                camera->TranslateView(glm::vec3(0.0f, sensitivity, 0.0f));
                 break;
             case GLFW_KEY_LEFT:
-                std::cout << "LEFT Pressed" << std::endl;
+                camera->TranslateView(glm::vec3(sensitivity, 0.0f, 0.0f));
                 break;
             case GLFW_KEY_RIGHT:
-                std::cout << "RIGHT Pressed" << std::endl;
+                camera->TranslateView(glm::vec3(-sensitivity, 0.0f, 0.0f));
                 break;
             default:
                 break;
@@ -62,70 +78,59 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
     }
 }
 
-void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT)
-    {
-        isLeftMousePressed = (action == GLFW_PRESS);
-    }
-    else if (button == GLFW_MOUSE_BUTTON_RIGHT)
-    {
-        isRightMousePressed = (action == GLFW_PRESS);
-    }
-}
-
 void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
 {
-    Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
+    Camera* camera = (Camera*) glfwGetWindowUserPointer(window);
     if (!camera) {
-        std::cout << "Warning: Camera wasn't set as the Window User Pointer! CursorPosCallback is skipped" << std::endl;
+        std::cout << "Warning: Camera wasn't set as the Window User Pointer! KeyCallback is skipped" << std::endl;
         return;
     }
 
+    float sensitivity = camera->m_MouseSensitivity;
 
-    static double lastMouseX = currMouseX;
-    static double lastMouseY = currMouseY;
+    camera->m_NewMouseX = camera->m_OldMouseX - currMouseX;
+    camera->m_NewMouseY = camera->m_OldMouseY - currMouseY;
+    camera->m_OldMouseX = currMouseX;
+    camera->m_OldMouseY = currMouseY;
 
-    double deltaX = currMouseX - lastMouseX;
-    double deltaY = currMouseY - lastMouseY;
-
-    lastMouseX = currMouseX;
-    lastMouseY = currMouseY;
-   
-    if (isLeftMousePressed)
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
     {
-        std::cout << "left" << std::endl;
-        
+        glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
+
+        camera->TranslateView(viewRotateInverse * glm::vec3((float) camera->m_NewMouseX * sensitivity, (float) -camera->m_NewMouseY * sensitivity, 0.0f));
     }
-    else if (isRightMousePressed)
+    else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
-        std::cout << "right" << std::endl;
-        glm::vec3 newPosition = camera->GetPosition() + glm::vec3(deltaX * 0.01f, -deltaY * 0.01f, 0.0f);
-    
-        camera->SetPosition(newPosition);
-        camera->SetViewMatrix(glm::lookAt(camera->GetPosition(), camera->GetPosition() + camera->GetOrientation(), camera->GetUpVector()));
+        glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
+        camera->RotateView((float) camera->m_NewMouseX * sensitivity, viewRotateInverse * glm::vec3(0.0f, -1.0f, 0.0f));
+        camera->RotateView((float) camera->m_NewMouseY * sensitivity, viewRotateInverse * glm::vec3(-1.0f, 0.0f, 0.0f));
     }
 }
 
-
 void ScrollCallback(GLFWwindow* window, double scrollOffsetX, double scrollOffsetY)
 {
-    Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
+    Camera* camera = (Camera*) glfwGetWindowUserPointer(window);
     if (!camera) {
         std::cout << "Warning: Camera wasn't set as the Window User Pointer! ScrollCallback is skipped" << std::endl;
         return;
     }
 
-    glm::vec3 newPosition = camera->GetPosition() + glm::vec3(0.0f, 0.0f, (float)-scrollOffsetY * 0.5f);
-    camera->SetPosition(newPosition);
-    camera->SetViewMatrix(glm::lookAt(camera->GetPosition(), camera->GetPosition() + camera->GetOrientation(), camera->GetUpVector()));
+    float sensitivity = camera->m_ScrollSensitivity;
+
+    camera->TranslateView(glm::vec3(0.0f, 0.0f, scrollOffsetY * sensitivity));
 }
+
 void Camera::EnableInputs(GLFWwindow* window)
 {
+    // Set camera as the user pointer for the window
     glfwSetWindowUserPointer(window, this);
 
-    glfwSetKeyCallback(window, KeyCallback);
-    glfwSetMouseButtonCallback(window, MouseButtonCallback);
-    glfwSetCursorPosCallback(window, CursorPosCallback);
-    glfwSetScrollCallback(window, ScrollCallback);
+    // Handle key inputs
+    glfwSetKeyCallback(window, (void(*)(GLFWwindow *, int, int, int, int)) KeyCallback);
+
+    // Handle cursor postion and inputs
+    glfwSetCursorPosCallback(window , (void(*)(GLFWwindow *, double, double)) CursorPosCallback);
+
+    // Handle scroll inputs
+    glfwSetScrollCallback(window, (void(*)(GLFWwindow *, double, double)) ScrollCallback);
 }
