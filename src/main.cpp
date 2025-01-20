@@ -64,8 +64,6 @@ float vertices[] = {
      1.0f,  1.0f, -1.0f,   0.0f, 1.0f, 1.0f,   0.0f, 1.0f,
 };
 
-
-
 /* Indices for vertices order */
 unsigned int indices[] = { 
         0, 1, 2,

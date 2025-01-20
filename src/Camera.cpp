@@ -24,7 +24,7 @@ void Camera::setPerspective(float near, float far) {
     m_Position = glm::vec3(0.0f, 0.0f, 20.0f);
     m_View = glm::lookAt(
         m_Position, // Adjust z-value if needed
-        glm::vec3(0.0f, 0.0f, 0.0f), // Look at the origin
+        m_Position+m_Orientation, // Look at the origin
         glm::vec3(0.0f, 1.0f, 0.0f)  // Up direction
     );
 }

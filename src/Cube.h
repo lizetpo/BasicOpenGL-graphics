@@ -41,7 +41,7 @@ bool pickingMode = false; // Declare globally or inside relevant class
 int FaceMoving = 0;
 float totalAngle = 0.0f;
 bool inMovement = false;
-int clockwise = 1;
+int clockwise = -1;
 float rotationAngle = 90.0f; // Renamed variable
 Cube allCubes[CUBE_SIZE];
 int cubesIndex[CUBE_SIZE];
@@ -208,28 +208,28 @@ inline void rotate_down() { // BY Y
 
 }
 
-inline void rotate_front() { // Rotate around Z-axis (Clockwise)
+inline void rotate_front() { 
     int before[9] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-    int after[9] = { 2, 5, 8, 1, 4, 7, 0, 3, 6 }; // Indices for clockwise rotation
-    rotation_checker(before, after, 3, -1, 3); // Axis: Z, Direction: Clockwise
+    int after[9] = { 2, 5, 8, 1, 4, 7, 0, 3, 6 }; 
+    rotation_checker(before, after, 3, 1, 3); 
 }
 
-inline void rotate_back() { // Rotate around Z-axis (Counter-Clockwise)
+inline void rotate_back() { 
     int before[9] = { 18, 19, 20, 21, 22, 23, 24, 25, 26 };
-    int after[9] = { 20, 23, 26, 19, 22, 25, 18, 21, 24 }; // Indices for counter-clockwise rotation
-    rotation_checker(before, after, 3, 1, 4); // Axis: Z, Direction: Counter-Clockwise
+    int after[9] = { 20, 23, 26, 19, 22, 25, 18, 21, 24 }; 
+    rotation_checker(before, after, 3, -1, 4); 
 }
 
-inline void rotate_right() { // Rotate around X-axis (Clockwise)
+inline void rotate_right() { 
     int before[9] = { 2, 11, 20, 5, 14, 23, 8, 17, 26 };
-    int after[9] = { 20, 23, 26, 11, 14, 17, 2, 5, 8 }; // Indices for clockwise rotation
-    rotation_checker(before, after, 1, -1, 5); // Axis: X, Direction: Clockwise
+    int after[9] = { 20, 23, 26, 11, 14, 17, 2, 5, 8 }; 
+    rotation_checker(before, after, 1, 1, 5); 
 }
 
 inline void rotate_left() { // Rotate around X-axis (Counter-Clockwise)
     int before[9] = { 18, 9, 0, 21, 12, 3, 24, 15, 6 };
     int after[9] = { 0, 3, 6, 9, 12, 15, 18, 21, 24 }; // Indices for counter-clockwise rotation
-    rotation_checker(before, after, 1, 1, 6); // Axis: X, Direction: Counter-Clockwise
+    rotation_checker(before, after, 1, -1, 6); // Axis: X, Direction: Counter-Clockwise
 }
 
 void randomMixer(int numMoves) {
