@@ -298,7 +298,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_UP:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate1 = glm::rotate(glm::radians(45.0f), glm::vec3(1, 0, 0));
+					const glm::mat4 rotate1 = glm::rotate(glm::radians(12.5f), glm::vec3(1, 0, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix;
@@ -308,7 +308,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_DOWN:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate1 = glm::rotate(glm::radians(-45.0f), glm::vec3(1, 0, 0));
+					const glm::mat4 rotate1 = glm::rotate(glm::radians(-12.5f), glm::vec3(1, 0, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate1 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate1 * allCubes[i].transMatrix; normalize_positions();
@@ -318,7 +318,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_RIGHT:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate2 =glm::rotate(glm::radians(45.0f), glm::vec3(0, 1, 0));
+					const glm::mat4 rotate2 =glm::rotate(glm::radians(12.5f), glm::vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; normalize_positions();
@@ -327,7 +327,7 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			case GLFW_KEY_LEFT:
 				for (int i = 0; i < CUBE_SIZE; i++)
 				{
-					const glm::mat4 rotate2 = glm::rotate(glm::radians(-45.0f),glm:: vec3(0, 1, 0));
+					const glm::mat4 rotate2 = glm::rotate(glm::radians(-12.5f),glm:: vec3(0, 1, 0));
 					allCubes[i].oldRotMatrix = allCubes[i].rotMatrix;
 					allCubes[i].rotMatrix = rotate2 * allCubes[i].rotMatrix;
 					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; normalize_positions();

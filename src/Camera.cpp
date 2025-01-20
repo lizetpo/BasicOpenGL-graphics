@@ -91,8 +91,7 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
 
     lastMouseX = currMouseX;
     lastMouseY = currMouseY;
-    const float sensitivity = 0.9f; // Adjust movement sensitivity
-
+   
     if (isLeftMousePressed)
     {
         std::cout << "left" << std::endl;
