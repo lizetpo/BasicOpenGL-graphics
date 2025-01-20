@@ -90,7 +90,6 @@ unsigned int indices[] = {
 		23, 22, 20
 	};
 
-
 //main
 int main() {
     std::cout.flush();
@@ -200,8 +199,6 @@ int main() {
         glfwPollEvents();
        
     }
-    
-    // Normalize rotation matrices for cubes that were rotated
 
         for (int i = 0; i < CUBE_SIZE; i++) { 
             allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
@@ -210,11 +207,11 @@ int main() {
 
     global = false;
     inMovement = false; // Allow new movement
-    
 }
-        
     }
     
+
     glfwTerminate();
     return 0;
 }
+

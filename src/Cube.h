@@ -41,7 +41,7 @@ glm::mat4 globalRotationMatrix = glm::mat4(1.0f);
 int FaceMoving = 0;
 float totalAngle = 0.0f;
 bool inMovement = false;
-int clockwise = 1;
+int clockwise = -1;
 float rotationAngle = 90.0f; // Renamed variable
 Cube allCubes[CUBE_SIZE];
 int cubesIndex[CUBE_SIZE];
@@ -334,13 +334,13 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					allCubes[i].transMatrix = rotate2 * allCubes[i].transMatrix; normalize_positions();
 				}
 				break;
-			case GLFW_KEY_R:
+			case GLFW_KEY_L:
 				if (action == GLFW_PRESS)
 				{
 					rotate_right();
 				}
 				break;
-			case GLFW_KEY_L:
+			case GLFW_KEY_R:
 				if (action == GLFW_PRESS)
 				{
 					rotate_left();
@@ -358,13 +358,13 @@ inline void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 					rotate_down();
 				}
 				break;
-			case GLFW_KEY_B:
+			case GLFW_KEY_F:
 				if (action == GLFW_PRESS)
 				{
 					rotate_back();
 				}
 				break;
-			case GLFW_KEY_F:
+			case GLFW_KEY_B:
 				if (action == GLFW_PRESS)
 				{
 					rotate_front();
