@@ -165,9 +165,9 @@ int main() {
     
     //
     int index = 0;
-    for (int z = -size + 1; z < size; z = z + 2) {
-        for (int y = -size + 1; y < size; y = y + 2) {
-            for (int x = size - 1; x >= -size +1; x = x - 2, index++) {
+    for (int z = -2; z < size; z = z + 2) {
+        for (int y = -2; y < size; y = y + 2) {
+            for (int x = 2; x >= -2; x = x - 2, index++) {
 
                 glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
 
