@@ -158,56 +158,45 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
 
     for (animation = 0; animation <= 40; animation++) {
-        // Delay for smooth animation
-        //std::this_thread::sleep_for(std::chrono::milliseconds(25)); // Adjust speed by changing delay
-    GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
-    GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    
-    //
-    int index = 0;
-    for (int z = -2; z < size; z = z + 2) {
-        for (int y = -2; y < size; y = y + 2) {
-            for (int x = 2; x >= -2; x = x - 2, index++) {
+        GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
+        GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-                glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
+        int index = 0;
+        for (int z = -2; z < size; z = z + 2) {
+            for (int y = -2; y < size; y = y + 2) {
+                for (int x = 2; x >= -2; x = x - 2, index++) {
 
-                glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                float frame_prog = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
-                glm::mat4 animated_rotation = glm::interpolate(
-  
-                        allCubes[index].oldRotMatrix, // Starting rotation
-                        allCubes[index].rotMatrix,    // Target rotation
-                        frame_prog                          // Progress ratio
-                    );
-               
-                glm::mat4 model = animated_rotation *trans* scaleS;
+                    glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
 
-                glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
+                    glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
+                    float frame_prog = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
+                    glm::mat4 animated_rotation = glm::interpolate(
+                            allCubes[index].oldRotMatrix, // Starting rotation
+                            allCubes[index].rotMatrix,    // Target rotation
+                            frame_prog                          // Progress ratio
+                        );
+                
+                    glm::mat4 model = animated_rotation *trans* scaleS;
 
-                shader.Bind();
-                shader.SetUniform4f("u_Color", color);
-                shader.SetUniformMat4f("u_MVP", mvp);
-                shader.SetUniform1i("u_Texture", 0);
-                va.Bind();
-                ib.Bind();
-                GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+                    glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
+
+                    shader.Bind();
+                    shader.SetUniform4f("u_Color", color);
+                    shader.SetUniformMat4f("u_MVP", mvp);
+                    shader.SetUniform1i("u_Texture", 0);
+                    va.Bind();
+                    ib.Bind();
+                    GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+                }
             }
         }
-    }
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-       
-    }
-    
-    // Normalize rotation matrices for cubes that were rotated
-
-        for (int i = 0; i < CUBE_SIZE; i++) { 
-            allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        
         }
-
-
-    global = false;
-    inMovement = false; // Allow new movement
+    
+        finalize_rotation();
+        inMovement = false; // Allow new movement
     
 }
         

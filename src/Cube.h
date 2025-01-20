@@ -35,7 +35,6 @@ public:
 static const int size = 3;
 static const int CUBE_SIZE = size * size * size;
 static const int CUBE_FACE_SIZE = size * size;
-glm::mat4 globalRotationMatrix = glm::mat4(1.0f);
 
 
 int FaceMoving = 0;
@@ -48,21 +47,14 @@ int cubesIndex[CUBE_SIZE];
 float angleSum = 0.0f;
 int animation;
 int inside = 0;
-bool global = false;
-glm::mat4 globalRotation = glm::mat4(1.0f); // Global rotation matrix for the entire cube
 
 
 inline void normalize_positions() {
     for (int i = 0; i < CUBE_SIZE; i++) {
-        // Extract the position from the transformation matrix
         glm::vec3 position = glm::vec3(allCubes[i].transMatrix[3]);
-
-        // Snap positions to the nearest valid grid value (-1, 0, 1)
         position.x = glm::round(position.x);
         position.y = glm::round(position.y);
         position.z = glm::round(position.z);
-
-        // Update the transformation matrix with the snapped position
         allCubes[i].transMatrix[3] = glm::vec4(position, 1.0f);
     }
 }
@@ -80,6 +72,11 @@ inline void normalize_rotation_matrix(glm::mat4& matrix) {
     matrix[2] = glm::vec4(zAxis, 0.0f);
 }
 
+inline void finalize_rotation(){
+	for (int i = 0; i < CUBE_SIZE; i++) { 
+                allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
+    }
+}
 
 
 inline void rotate_cube_side(const int cubes[], const int direction, const float rot_angle) {
