@@ -102,6 +102,7 @@ void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
     {
         std::cout << "right" << std::endl;
         glm::vec3 newPosition = camera->GetPosition() + glm::vec3(deltaX * 0.01f, -deltaY * 0.01f, 0.0f);
+    
         camera->SetPosition(newPosition);
         camera->SetViewMatrix(glm::lookAt(camera->GetPosition(), camera->GetPosition() + camera->GetOrientation(), camera->GetUpVector()));
     }
