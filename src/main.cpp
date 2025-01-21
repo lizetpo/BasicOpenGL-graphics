@@ -151,6 +151,7 @@ int main() {
         GLCall(glEnable(GL_DEPTH_TEST));
         Camera camera(width, height);
         camera.SetPerspective(near,far);
+        camera.TranslateProjection(glm::vec3(0.0f, 0.0f, -20.0f));
         glm::mat4 scaleS = scale(glm::mat4(1), glm::vec3(0.98f, 0.98f, 0.98f));
         camera.EnableInputs(window);
         glfwSetKeyCallback(window, key_callback);

@@ -229,8 +229,7 @@ inline void rotate_right() { // BY X
 		int before[9] = { 2,11,20,5,14,23,8,17,26 };
 		int after[9] = { 20,23,26,11,14,17,2,5,8 };
 		rotation_checker(before, after, 1, 1, 5);
-	
-	
+
 }
 
 inline void rotate_left() { // BY X
