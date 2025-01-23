@@ -9,7 +9,7 @@ Renderer::Renderer(Scene &scene, int width, int height, int maxDepth)
 
 void Renderer::render(std::vector<glm::vec3> &imageBuffer) {
     // Number of samples per pixel (NxN sampling grid)
-    int samplesPerPixel = 4; // 2x2 grid of subpixels
+    int samplesPerPixel = 1; // 2x2 grid of subpixels
     float sampleStep = 1.0f / samplesPerPixel; // Step size for subpixel sampling
 
     // Calculate the width and height of a single pixel in normalized device coordinates (NDC)
