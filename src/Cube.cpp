@@ -24,7 +24,7 @@ void Cube::render(glm::mat4 mvp)
 
     cubeTexture->Bind(0);
     shader->Bind();
-    shader->SetUniform1i("u_PickingMode", 0);
+    shader->SetUniform1i("color_picking", 0);
     shader->SetUniform4f("u_Color", color); 
     shader->SetUniformMat4f("u_MVP", draw_mvp);
     shader->SetUniform1i("u_Texture", 0);
