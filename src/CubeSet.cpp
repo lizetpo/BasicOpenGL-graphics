@@ -55,11 +55,11 @@ void CubeSet::set_char_to_wall(int num_of_cubes)
         char_to_wall.push_back(d * num_of_cubes + num_of_cubes - 1);
     }
 
-    // // print char to i created:
-    // for(int i : char_to_wall) 
-    // {
-    //     std::cout<< i <<std::endl;
-    // }
+    // print char to i created:
+    for(int i : char_to_wall) 
+    {
+        std::cout<< i <<std::endl;
+    }
 
 }
 
@@ -105,11 +105,11 @@ std::vector<int> CubeSet::get_cube_indices(int wall)
             break;
     }
 
-    // // print cubes on wall that should rotate:
-    // for(int i : wall_indices)
-    // {
-    //     std::cout<< i <<std::endl;
-    // }
+    // print cubes on wall that should rotate:
+    for(int i : wall_indices)
+    {
+        std::cout<< i <<std::endl;
+    }
     
     return wall_indices;
 
@@ -140,189 +140,45 @@ glm::vec3 CubeSet::get_rot_axis(int wall)
 }
 
 
-// void CubeSet::apply_rotation(int wall)
-// {
-//     if(is_rotating != -1) 
-//     {
-//         std::vector<int> indices = get_cube_indices(wall);
-//         curr_degree_of_wall += clockwise ? 1.0f : -1.0f;
+void CubeSet::apply_rotation(int wall)
+{
+    if(is_rotating != -1) 
+    {
+        std::vector<int> indices = get_cube_indices(wall);
+        curr_degree_of_wall += clockwise ? 1.0f : -1.0f;
 
-//         for(int i : indices)
-//         {
-//             cubes[i]->set_tot_rot(glm::radians(clockwise ? 1.0f : -1.0f), get_rot_axis(wall));
-//         }
+        for(int i : indices)
+        {
+            cubes[i]->set_tot_rot(glm::radians(clockwise ? 1.0f : -1.0f), get_rot_axis(wall));
+        }
 
-//         if (glm::abs(curr_degree_of_wall - 45.0f) < 0.01f || glm::abs(curr_degree_of_wall + 45.0f) < 0.01f) 
-//         {
-//             curr_degree_of_wall = glm::round(curr_degree_of_wall);
-//         }
+        if (glm::abs(curr_degree_of_wall - 45.0f) < 0.01f || glm::abs(curr_degree_of_wall + 45.0f) < 0.01f) 
+        {
+            curr_degree_of_wall = glm::round(curr_degree_of_wall);
+        }
 
-//         if(glm::abs(curr_degree_of_wall) >= 45.0f)
-//         {
-//             is_rotating = -1;
-//             curr_degree_of_wall = 0.0f;
-//             if(acc_rotation[wall] % 2 == 0)
-//             {
-//                 update_cube_locations(wall);
-//                 acc_rotation[wall] = 0; 
-//             }
-//         }
-//     }
-
-//     if(is_rotating == -1 && !wall_rotations_q.empty())
-//     {
-//         if(can_rotate(wall_rotations_q.front()))
-//         {
-//             is_rotating = wall_rotations_q.front();
-//             acc_rotation[is_rotating]++;
-//         }
-//         wall_rotations_q.pop();
-//     } 
-// }
-
-void CubeSet::apply_rotation(int wall) {
-    if (is_rotating != -1) {
-        // Remove dynamic rotation logic
-        is_rotating = -1;
-    }
-}
-
-// void CubeSet::rotation_checker(const int before[9], const int after[9], int axis, int direction, int wall) {
-//     std::vector<Cube*> temp(27); // Temporary cube storage
-//     for (int i = 0; i < 27; i++) {
-//         temp[i] = cubes[i]; // Copy current cube arrangement
-//     }
-
-//     // Apply swap based on hardcoded rotation
-//     for (int i = 0; i < 9; i++) {
-//         cubes[after[i]] = temp[before[i]];
-//     }
-
-//     // Apply the actual rotation to cube matrices
-//     glm::vec3 rot_axis;
-//     if (axis == 1) rot_axis = glm::vec3(1.0f, 0.0f, 0.0f); // X-axis
-//     if (axis == 2) rot_axis = glm::vec3(0.0f, 1.0f, 0.0f); // Y-axis
-//     if (axis == 3) rot_axis = glm::vec3(0.0f, 0.0f, 1.0f); // Z-axis
-
-//     float rot_angle = direction * glm::radians(90.0f); // 90-degree rotation
-
-//     for (int i = 0; i < 9; i++) {
-//         cubes[after[i]]->set_tot_rot(rot_angle, rot_axis);
-//     }
-// }
-
-void CubeSet::rotation_checker(const int before[9], const int after[9], int axis, int direction, int wall) {
-    std::cout << "Before Rotation:\n";
-    for (int i = 0; i < 27; i++) {
-        std::cout << "Cube " << i << " at position " << cube_to_location[i/9][(i%9)/3][i%3] << "\n";
-    }
-    std::vector<Cube*> temp(27);
-    for (int i = 0; i < 27; i++) {
-        temp[i] = cubes[i]; // Copy the original cube positions
-    }
-
-    // 🔴 Swap cubes in the array
-    for (int i = 0; i < 9; i++) {
-        cubes[after[i]] = temp[before[i]];  // Move cubes to their new positions
-    }
-
-    // 🔴 Also swap cube locations to ensure logical consistency
-    for (int i = 0; i < 9; i++) {
-        int bx = before[i] % 3;
-        int by = (before[i] / 3) % 3;
-        int bz = before[i] / 9;
-
-        int ax = after[i] % 3;
-        int ay = (after[i] / 3) % 3;
-        int az = after[i] / 9;
-
-        cube_to_location[ax][ay][az] = cube_to_location[bx][by][bz];
-    }
-
-    // Apply rotation transformation to the moved cubes
-    glm::vec3 rot_axis;
-    if (axis == 1) rot_axis = glm::vec3(1.0f, 0.0f, 0.0f); // X-axis
-    if (axis == 2) rot_axis = glm::vec3(0.0f, 1.0f, 0.0f); // Y-axis
-    if (axis == 3) rot_axis = glm::vec3(0.0f, 0.0f, 1.0f); // Z-axis
-
-    float rot_angle = direction * glm::radians(90.0f);
-
-    for (int i = 0; i < 9; i++) {
-        cubes[after[i]]->set_tot_rot(rot_angle, rot_axis);
-    }
-
-    // 🔴 Ensure `cube_to_location` reflects new order
-    update_cube_to_location();
-    std::cout << "After Rotation:\n";
-    for (int i = 0; i < 27; i++) {
-        std::cout << "Cube " << i << " at position " << cube_to_location[i/9][(i%9)/3][i%3] << "\n";
-    }
-}
-
-
-void CubeSet::update_cube_to_location() {
-    int index = 0;
-    for (int x = 0; x < 3; x++) {
-        for (int y = 0; y < 3; y++) {
-            for (int z = 0; z < 3; z++) {
-                cube_to_location[x][y][z] = index;
-                index++;
+        if(glm::abs(curr_degree_of_wall) >= 45.0f)
+        {
+            is_rotating = -1;
+            curr_degree_of_wall = 0.0f;
+            if(acc_rotation[wall] % 2 == 0)
+            {
+                update_cube_locations(wall);
+                acc_rotation[wall] = 0; 
             }
         }
     }
+
+    if(is_rotating == -1 && !wall_rotations_q.empty())
+    {
+        if(can_rotate(wall_rotations_q.front()))
+        {
+            is_rotating = wall_rotations_q.front();
+            acc_rotation[is_rotating]++;
+        }
+        wall_rotations_q.pop();
+    } 
 }
-
-
-
-inline void CubeSet::rotate_up() { // Rotate Top Layer by Y-axis
-    int before[9] = { 6,7,8,15,16,17,24,25,26 };
-    int after[9] = { 8,17,26,7,16,25,6,15,24 };
-    rotation_checker(before, after, 2, -1, 1);
-}
-
-inline void CubeSet::rotate_down() { // Rotate Bottom Layer by Y-axis
-    int before[9] = { 0,1,2,9,10,11,18,19,20 };
-    int after[9] = { 2,11,20,1,10,19,0,9,18 };
-    rotation_checker(before, after, 2, -1, 2);
-}
-
-inline void CubeSet::rotate_back() { // Rotate Front Layer by Z-axis
-    int before[9] = { 0,1,2,3,4,5,6,7,8 };
-    int after[9] = { 2,5,8,1,4,7,0,3,6 };
-    rotation_checker(before, after, 3, 1, 3);
-}
-
-inline void CubeSet::rotate_front() { // Rotate Back Layer by Z-axis
-    int before[9] = { 18,19,20,21,22,23,24,25,26 };
-    int after[9] = { 20,23,26,19,22,25,18,21,24 };
-    rotation_checker(before, after, 3, 1, 4);
-}
-
-// inline void CubeSet::rotate_right() { // Rotate Right Layer by X-axis
-//     int before[9] = { 2,11,20,5,14,23,8,17,26 };
-//     int after[9] = { 20,23,26,11,14,17,2,5,8 };
-//     rotation_checker(before, after, 1, 1, 5);
-// }
-
-// inline void CubeSet::rotate_left() { // Rotate Left Layer by X-axis
-//     int before[9] = { 18,9,0,21,12,3,24,15,6 };
-//     int after[9] = { 0,3,6,9,12,15,18,21,24 };
-//     rotation_checker(before, after, 1, -1, 6);
-// }
-
-
-inline void CubeSet::rotate_right() { // Rotate Right Layer by X-axis
-    int before[9] = { 2,11,20,5,14,23,8,17,26 };
-    int after[9] =  { 20,23,26,11,14,17,2,5,8 }; // Ensure correct order
-    rotation_checker(before, after, 1, 1, 5);
-}
-
-inline void CubeSet::rotate_left() { // Rotate Left Layer by X-axis
-    int before[9] = { 18,9,0,21,12,3,24,15,6 };
-    int after[9] =  { 0,3,6,9,12,15,18,21,24 }; // Ensure correct order
-    rotation_checker(before, after, 1, -1, 6);
-}
-
 
 void CubeSet::update_cube_locations(int wall)
 {
@@ -366,36 +222,18 @@ void CubeSet::update_cube_locations(int wall)
 }
 
 
-// void CubeSet::rotate_wall(int wall)
-// {
-//     wall = char_to_wall[wall];
+void CubeSet::rotate_wall(int wall)
+{
+    wall = char_to_wall[wall];
 
-//     if (can_rotate(wall))
-//     {
-//         for(int i = 0; i < rotate_degree; i++)
-//         {
-//             wall_rotations_q.push(wall);
-//         }
-//     }
-// }
-
-void CubeSet::rotate_wall(int wall) {
-    if (is_rotating != -1) return; // Block rotation until previous is done
-
-    switch (wall) {
-        case 1: rotate_right(); break;
-        case 0: rotate_left(); break;
-        case 3: rotate_up(); break;
-        case 2: rotate_down(); break;
-        case 5: rotate_back(); break;
-        case 4: rotate_front(); break;
+    if (can_rotate(wall))
+    {
+        for(int i = 0; i < rotate_degree; i++)
+        {
+            wall_rotations_q.push(wall);
+        }
     }
-
-    is_rotating = -1; // Unlock after rotation
 }
-
-
-
 
 void CubeSet::set_rotate_degree(float mult)
 { 

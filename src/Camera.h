@@ -59,8 +59,6 @@ class Camera
         float m_MouseSensitivity = 0.05f;
         float m_ScrollSensitivity = 1.0f;
     public:
-        // Camera(int width, int height, )        
-        //     : m_Width(width), m_Height(height) {};
         Camera(int width, int height, CubeSet* r_cube)
             : m_Width(width), m_Height(height), 
                 m_Cubes(r_cube){};

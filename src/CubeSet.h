@@ -53,14 +53,6 @@ class CubeSet
         std::vector<int> get_cube_indices(int wall);
         glm::vec3 get_rot_axis(int wall);
         void set_char_to_wall(int num_of_cubes);
-        void rotation_checker(const int before[9], const int after[9], int axis, int direction, int wall);
-        void rotate_up();
-        void rotate_down();
-        void rotate_front();
-        void rotate_back();
-        void rotate_right();
-        void rotate_left();
-        void update_cube_to_location();
 
     public:
         CubeSet(int num_of_cubes, Shader* shader, Texture* tex, VertexArray* va);

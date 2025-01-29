@@ -69,22 +69,6 @@ void Camera::PickCube(double x, double y) //TODO
     printf("\ncube id: %d\n", color_id);
 }
 
-// void Camera::ColorPick() 
-// {       
-//         printf("picked cube: %d\n", m_PickedCube);
-//         if (m_PickedCube >= 0) // Check if an object is picked
-//         {
-//             float z = m_Far + m_Depth * (m_Near - m_Far);
-//             float x_new = ((m_NewMouseX * m_Far) / (m_Width * z)) * m_Near * 2 * glm::tan(m_Aspect);
-//             float y_new = ((m_NewMouseY * m_Far) / (m_Width * z)) * m_Near * 2 * glm::tan(m_Aspect);
-            
-//             glm::vec3 trans = glm::vec3(-x_new * m_Position.z * 5, y_new * m_Position.z * 5, 0.0f);
-
-//             m_Cubes->translate_cube(m_PickedCube, trans);
-//         }
-// }
-
-
 void Camera::ColorPick() 
 {       
     printf("picked cube: %d\n", m_PickedCube);
@@ -147,16 +131,16 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
                 camera->m_Cubes->rotate_wall(0); // Left
                 break;
             case GLFW_KEY_U:
-                camera->m_Cubes->rotate_wall(3); // Up
+                camera->m_Cubes->rotate_wall(5); // Up
                 break;
             case GLFW_KEY_D:
-                camera->m_Cubes->rotate_wall(2); // Down
+                camera->m_Cubes->rotate_wall(4); // Down
                 break;
             case GLFW_KEY_B:
-                camera->m_Cubes->rotate_wall(5); // Back
+                camera->m_Cubes->rotate_wall(2); // Back
                 break;
             case GLFW_KEY_F:
-                camera->m_Cubes->rotate_wall(4); // Front
+                camera->m_Cubes->rotate_wall(3); // Front
                 break;
             // case GLFW_KEY_SPACE:
             //     camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
