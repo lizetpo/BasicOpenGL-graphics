@@ -45,7 +45,7 @@ class Cube
         void set_tot_rot(float angle, glm::vec3 axis);
         void add_translate(glm::vec3 trans_vec);
         void set_translate(glm::mat4 trans);
-
+        inline glm::mat4 GetTransform() const { return transformMatrix; }
 
         void render(glm::mat4 mvp);
         void render_back_buffer(glm::mat4 mvp);

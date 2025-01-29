@@ -27,59 +27,66 @@ class CubeSet
 {
     private:
         // Cubes data structure:
-        std::vector<Cube*> cubes;
-        std::vector<std::vector<std::vector<int>>> cube_to_location;
-        std::queue<int> wall_rotations_q;
+        std::vector<Cube*> Cubes;
+        std::vector<std::vector<std::vector<int>>> CubeToLocation;
+        std::queue<int> WallRotations;
 
         // Model matrices
-        glm::mat4 rubiks_trans;
-        glm::mat4 rubiks_rot;
-        glm::mat4 rubiks_scl;
+        glm::mat4 CubeSetTranslation;
+        glm::mat4 CubeSetRotation;
+        glm::mat4 CubeSetScale;
 
         // Locks & rotations
-        std::vector<int> acc_rotation; 
-        bool clockwise = true;
-        int rotate_degree = 2;
-        float curr_degree_of_wall = 0.0f;
-        std::vector<int> char_to_wall; // 0 = L, 1 = R, 2 = D, 3 = U, 4 = F, 5 = B 
-        int is_rotating;
-        double last_time;
-        bool picking_mode = false;
+        std::vector<int> accumulatedRotation; 
+        bool Clockwise = true;
+        int RotateDegree = 2;
+        float CurrentRotationAngle = 0.0f;
+        std::vector<int> WallIndices; // 0 = L, 1 = R, 2 = D, 3 = U, 4 = F, 5 = B 
+        int ActiveRotations;
+        double LastFrameTime;
+        bool ColorPicking = false;
 
-        glm::mat4 translate_by(int x, int y, int z);
-        bool can_rotate(int wall);
-        void apply_rotation(int wall);
-        void update_cube_locations(int wall);
-        std::vector<int> get_cube_indices(int wall);
-        glm::vec3 get_rot_axis(int wall);
-        void set_char_to_wall(int num_of_cubes);
+        bool CanRotate(int wall);
+        void ApplyRotation(int wall);
+        void UpdateCubePositions(int wall);
+        std::vector<int> GetWallCubeIndices(int wall);
+        void InitializeWallIndices(int num_of_cubes);
+
 
     public:
-        CubeSet(int num_of_cubes, Shader* shader, Texture* tex, VertexArray* va);
-        ~CubeSet();
+        CubeSet(int numCubes, Shader* shader, Texture* texture, VertexArray* vertexArray);
+        CubeSet() = default;
 
         // WALL ROTATIONS
-        void rotate_wall(int wall);
-        void change_center_of_rotation(char dir);
-        void set_rotate_degree(float mult);
-        void set_clockwise();
+        void RotateWall(int wall);        
+        void SwapRotationAxis(char dir);
+        void SetClockWise();
         
+        void RotateLeft();
+        void RotateRight();
+        void RotateDown();
+        void RotateUp();
+        void RotateFront();
+        void RotateBack();
+
+
         // MIX & SOLVE
 
-        void rand_mix();
+        void Mix();
         
         // VIEW
-        void model_rotate(float angle, glm::vec3 axis);
+        void Rotate(float angle, glm::vec3 axis);
 
         // RENDER
-        void render_rubik(glm::mat4 view, glm::mat4 proj, double frame_time);
+        void Render(glm::mat4 view, glm::mat4 proj, double frame_time);
 
         // PICKING
-        void translate_cube(int cube_id, glm::vec3 trans_vec);
-        void rotate_cube(int cube_id, float angle, glm::vec3 axis);
-        void swap_picking(bool mode);
-        bool should_pick();
-        void restart();
-        void draw_back_buffer(glm::mat4 view, glm::mat4 proj);
+        void Translate(int cube_id, glm::vec3 trans_vec);
+        void RotationCube(int cube_id, float angle, glm::vec3 axis);
+        void TogglePicking(bool mode);
+        bool IdentifyPick();
+        void Restart();
+        void Buffer(glm::mat4 view, glm::mat4 proj);
+        glm::vec3 GetCubePosition(int cubeID);
         
 };

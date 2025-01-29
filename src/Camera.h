@@ -24,7 +24,7 @@ class Camera
         // View matrix paramters
         glm::vec3 m_Position = glm::vec3(0.0f, 0.0f, 0.0f);
         glm::vec3 m_Orientation = glm::vec3(0.0f, 0.0f, -1.0f);
-        glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 m_Up = glm::vec3(0.0f, 1.0f, 0.0f);        
 
         // Projection matrix parameters
         float m_Near = 0.1f; 
@@ -35,6 +35,7 @@ class Camera
         // Perspective Projection parameters
         float m_FOVdegree = 45.0f;
         float m_Aspect = 1.0f;
+        glm::vec3 m_Offset = glm::vec3(0.0f);  
 
         // Orthographic Projection parameters
         float m_Left = -1.0f * 2.0f;

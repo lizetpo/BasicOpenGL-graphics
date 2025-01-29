@@ -186,17 +186,17 @@ int main() {
             glm::mat4 proj = camera.GetProjectionMatrix();
             
             ib.Bind();
-            rubik_cube.render_rubik(view, proj, glfwGetTime());
+            rubik_cube.Render(view, proj, glfwGetTime());
             ib.Unbind();
             
             
             glfwSwapBuffers(window);
 
-            if(rubik_cube.should_pick()) 
+            if(rubik_cube.IdentifyPick()) 
             {
                 ib.Bind();
                 GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-                rubik_cube.draw_back_buffer(view, proj);
+                rubik_cube.Buffer(view, proj);
                 ib.Unbind();
             }
 
