@@ -12,6 +12,7 @@
 
 #include <Debugger.h>
 #include <Shader.h>
+#include "CubeSet.h"
 
 class Camera
 {
@@ -41,6 +42,12 @@ class Camera
         float m_Bottom = -1.0f * 2.0f; 
         float m_Top = 1.0f * 2.0f;
     public:
+        //color picking
+        bool m_ColorPicking = false;
+        CubeSet* m_Cubes;
+        int m_PickedCube = -1;
+        float m_Depth = -1.0f;
+
         // Prevent the camera from jumping around when first clicking left click
         double m_OldMouseX = 0.0;
         double m_OldMouseY = 0.0;
@@ -52,8 +59,11 @@ class Camera
         float m_MouseSensitivity = 0.05f;
         float m_ScrollSensitivity = 1.0f;
     public:
-        Camera(int width, int height)
-            : m_Width(width), m_Height(height) {};
+        // Camera(int width, int height, )        
+        //     : m_Width(width), m_Height(height) {};
+        Camera(int width, int height, CubeSet* r_cube)
+            : m_Width(width), m_Height(height), 
+                m_Cubes(r_cube){};
 
         // Update Projection matrix for Perspective mode
         void SetPerspective(float near, float far);
@@ -72,4 +82,9 @@ class Camera
 
         inline glm::mat4 GetViewMatrix() const { return m_View; }
         inline glm::mat4 GetProjectionMatrix() const { return m_Projection; }
+
+        void ToggleColorPicking();
+        void PickCube(double x, double y);
+        void ColorPick();
+
 };

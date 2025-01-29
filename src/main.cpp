@@ -1,13 +1,9 @@
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/matrix_interpolation.hpp>
 
 #include <Debugger.h>
 #include <VertexBuffer.h>
@@ -22,9 +18,7 @@
 #include <chrono>
 #include <iostream>
 
-#include <glm/gtx/string_cast.hpp>
-
-
+#include <CubeSet.h>
 
 /* Window size */
 const unsigned int width = 800;
@@ -96,10 +90,6 @@ int main() {
 
     if (!glfwInit()) return -1;
 
-    for (int z = 0; z <CUBE_SIZE; z++) {
-				allCubes[z] = Cube(z);
-				cubesIndex[z] = z;
-	}
     
 
 
@@ -143,76 +133,43 @@ int main() {
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
 
+        CubeSet rubik_cube(3, &shader, &texture, &va);
         va.Unbind();
         vb.Unbind();
         ib.Unbind();
         shader.Unbind();
 
         GLCall(glEnable(GL_DEPTH_TEST));
-        Camera camera(width, height);
+        Camera camera(width, height, &rubik_cube);
         camera.SetPerspective(near,far);
-        camera.TranslateProjection(glm::vec3(0.0f, 0.0f, -20.0f));
-        glm::mat4 scaleS = scale(glm::mat4(1), glm::vec3(0.98f, 0.98f, 0.98f));
         camera.EnableInputs(window);
-        glfwSetKeyCallback(window, key_callback);
-
 
     while (!glfwWindowShouldClose(window)) {
-
-    for (animation = 0; animation <= 40; animation++) {
-        // Delay for smooth animation
-        //std::this_thread::sleep_for(std::chrono::milliseconds(25)); // Adjust speed by changing delay
     GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
     GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-    
-    //
-    int index = 0;
-    for (int z = -2; z < size; z = z + 2) {
-        for (int y = -2; y < size; y = y + 2) {
-            for (int x = 2; x >= -2; x = x - 2, index++) {
 
-                glm::vec4 color = glm::vec4(1.0, 1.0f, 1.0f, 1.0f); // Default color
+            glm::mat4 view = camera.GetViewMatrix(); 
+            glm::mat4 proj = camera.GetProjectionMatrix();
+            
+            ib.Bind();
+            rubik_cube.render_rubik(view, proj, glfwGetTime());
+            ib.Unbind();
+            
+            
+            glfwSwapBuffers(window);
 
-                glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, z));
-                float frame_prog = glm::clamp((float)animation / 40.0f, 0.0f, 1.0f);
-                glm::mat4 animated_rotation = glm::interpolate(
-  
-                        allCubes[index].oldRotMatrix, // Starting rotation
-                        allCubes[index].rotMatrix,    // Target rotation
-                        frame_prog                          // Progress ratio
-                    );
-               
-                glm::mat4 model = animated_rotation *trans* scaleS;
-
-                glm::mat4 mvp = camera.GetProjectionMatrix() * camera.GetViewMatrix() * model;
-
-                shader.Bind();
-                shader.SetUniform4f("u_Color", color);
-                shader.SetUniformMat4f("u_MVP", mvp);
-                shader.SetUniform1i("u_Texture", 0);
-                va.Bind();
+            if(rubik_cube.should_pick()) 
+            {
                 ib.Bind();
-                GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
+                GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+                rubik_cube.draw_back_buffer(view, proj);
+                ib.Unbind();
             }
+
+            
+            glfwPollEvents();
         }
     }
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-       
-    }
-
-        for (int i = 0; i < CUBE_SIZE; i++) { 
-            allCubes[i].oldRotMatrix = allCubes[i].rotMatrix; // Store final state
-        }
-
-
-    global = false;
-    inMovement = false; // Allow new movement
-}
-    }
-    
-
     glfwTerminate();
     return 0;
 }
-
