@@ -17,34 +17,29 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
-
-
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 class CubeSet
 {
     private:
-        // Cubes data structure:
+    
         std::vector<Cube*> Cubes;
         std::vector<std::vector<std::vector<int>>> CubeToLocation;
         std::queue<int> WallRotations;
 
-        // Model matrices
-        glm::mat4 CubeSetTranslation;
-        glm::mat4 CubeSetRotation;
-        glm::mat4 CubeSetScale;
+        glm::mat4 CubeTranslationMatrix;
+        glm::mat4 CubeRotationMatrix;
+        glm::mat4 CubeScaleMatrix;
 
-        // Locks & rotations
-        std::vector<int> accumulatedRotation; 
+        std::vector<int> totalRotation; 
         bool Clockwise = true;
-        int RotateDegree = 2;
+        int RotationAngle = 2;
         float CurrentRotationAngle = 0.0f;
-        std::vector<int> WallIndices; // 0 = L, 1 = R, 2 = D, 3 = U, 4 = F, 5 = B 
+        std::vector<int> WallIndices;
         int ActiveRotations;
         double LastFrameTime;
-        bool ColorPicking = false;
+        bool EnableColorPicking = false;
 
         bool CanRotate(int wall);
         void ApplyRotation(int wall);
@@ -57,30 +52,22 @@ class CubeSet
         CubeSet(int numCubes, Shader* shader, Texture* texture, VertexArray* vertexArray);
         CubeSet() = default;
 
-        // WALL ROTATIONS
         void RotateWall(int wall);        
         void SwapRotationAxis(char dir);
-        void SetClockWise();
-        
+        void SetClockWise();        
         void RotateLeft();
         void RotateRight();
         void RotateDown();
         void RotateUp();
         void RotateFront();
         void RotateBack();
-
-
-        // MIX & SOLVE
-
-        void Mix();
-        
-        // VIEW
         void Rotate(float angle, glm::vec3 axis);
 
-        // RENDER
+        void Mix();
+            
         void Render(glm::mat4 view, glm::mat4 proj, double frame_time);
 
-        // PICKING
+        // void GetCubePosition(int cubeID);
         void Translate(int cube_id, glm::vec3 trans_vec);
         void RotationCube(int cube_id, float angle, glm::vec3 axis);
         void TogglePicking(bool mode);

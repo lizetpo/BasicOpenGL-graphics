@@ -69,19 +69,6 @@ void Camera::PickCube(double x, double y) //TODO
     printf("\ncube id: %d\n", color_id);
 }
 
-// void Camera::ColorPick() 
-// {       
-//     printf("picked cube: %d\n", m_PickedCube);
-//     if (m_PickedCube >= 0) 
-//     {
-//         float depth_factor = m_Far + m_Depth * (m_Near - m_Far);
-//         glm::vec3 screen_pos = glm::vec3(m_NewMouseX, m_NewMouseY, depth_factor);
-//         glm::vec3 world_pos = glm::unProject(screen_pos, m_View, m_Projection, glm::vec4(0.0f, 0.0f, m_Width, m_Height));
-        
-//         glm::vec3 translation_vector = world_pos - m_Position;
-//         m_Cubes->Translate(m_PickedCube, translation_vector);
-//     }
-// }
 
 void Camera::ColorPick() {       
     if (m_PickedCube < 0) return; // No cube picked
@@ -196,41 +183,6 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
         }
     }
 }
-
-// void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY)
-// {
-//     Camera* camera = (Camera*) glfwGetWindowUserPointer(window);
-//     if (!camera) {
-//         std::cout << "Warning: Camera wasn't set as the Window User Pointer! KeyCallback is skipped" << std::endl;
-//         return;
-//     }
-
-//     float sensitivity = camera->m_MouseSensitivity;
-
-//     camera->m_NewMouseX = camera->m_OldMouseX - currMouseX;
-//     camera->m_NewMouseY = camera->m_OldMouseY - currMouseY;
-//     camera->m_OldMouseX = currMouseX;
-//     camera->m_OldMouseY = currMouseY;
-
-//     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
-//     {
-//         printf("%d\n", camera->m_ColorPicking);
-//         if(camera->m_ColorPicking == false)
-//         {
-//             camera->ColorPick();
-//         }else{
-//         glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
-
-//         camera->TranslateView(viewRotateInverse * glm::vec3((float) camera->m_NewMouseX * sensitivity, (float) -camera->m_NewMouseY * sensitivity, 0.0f));
-//         }
-//     }
-//     else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-//     {
-//         glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
-//         camera->RotateView((float) camera->m_NewMouseX * sensitivity, viewRotateInverse * glm::vec3(0.0f, -1.0f, 0.0f));
-//         camera->RotateView((float) camera->m_NewMouseY * sensitivity, viewRotateInverse * glm::vec3(-1.0f, 0.0f, 0.0f));
-//     }
-// }
 
 void CursorPosCallback(GLFWwindow* window, double currMouseX, double currMouseY) {
     Camera* camera = (Camera*)glfwGetWindowUserPointer(window);
