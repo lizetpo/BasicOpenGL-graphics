@@ -1,10 +1,10 @@
-#include "CubeSet.h"
+#include "CubeHandler.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <glm/gtc/matrix_transform.hpp>
 
-CubeSet::CubeSet(Shader* shader, Texture* texture, VertexArray* vertexArray) 
+CubeHandler::CubeHandler(Shader* shader, Texture* texture, VertexArray* vertexArray) 
     : CubeTranslationMatrix(glm::mat4(1.0f)),
       CubeRotationMatrix(glm::mat4(1.0f)),
       CubeScaleMatrix(glm::mat4(0.5f)),
@@ -31,7 +31,7 @@ CubeSet::CubeSet(Shader* shader, Texture* texture, VertexArray* vertexArray)
     }
 }
 
-std::vector<int> CubeSet::GetWallCubeIndices(int axis, int wallIndex) {
+std::vector<int> CubeHandler::GetWallCubeIndices(int axis, int wallIndex) {
     
     std::vector<int> wallIndices;
     wallIndices.reserve(3 * 3);
@@ -48,7 +48,7 @@ std::vector<int> CubeSet::GetWallCubeIndices(int axis, int wallIndex) {
     return wallIndices;
 }
 
-bool CubeSet::CanRotate(int axis) {
+bool CubeHandler::CanRotate(int axis) {
     
     for(int d = 0; d < 3; ++d) {
         if(d == axis) continue;
@@ -59,7 +59,7 @@ bool CubeSet::CanRotate(int axis) {
     return true;
 }
 
-void CubeSet::ApplyRotation(int wall) {
+void CubeHandler::ApplyRotation(int wall) {
     if(ActiveRotations != -1) {
         std::vector<int> indices = GetWallCubeIndices(wall/3, wall%3);
         CurrentRotationAngle += (Clockwise ? 1.0f : -1.0f);
@@ -91,7 +91,7 @@ void CubeSet::ApplyRotation(int wall) {
     }
 }
 
-void CubeSet::UpdateCubePositions(int axis, int wallIndex) {
+void CubeHandler::UpdateCubePositions(int axis, int wallIndex) {
 
     auto getIndex = [&](int i, int j) -> int& {
         switch (axis) {
@@ -124,7 +124,7 @@ void CubeSet::UpdateCubePositions(int axis, int wallIndex) {
 
 
 
-void CubeSet::RotateWall(int wall)
+void CubeHandler::RotateWall(int wall)
 {
     wall = WallIndices[wall];
 
@@ -137,15 +137,15 @@ void CubeSet::RotateWall(int wall)
     }
 }
 
-void CubeSet::RotateLeft()  { RotateWall(0); }
-void CubeSet::RotateRight() { RotateWall(1); }
-void CubeSet::RotateDown()  { RotateWall(4); }
-void CubeSet::RotateUp()    { RotateWall(5); }
-void CubeSet::RotateFront() { RotateWall(3); }
-void CubeSet::RotateBack()  { RotateWall(2); }
+void CubeHandler::RotateLeft()  { RotateWall(0); }
+void CubeHandler::RotateRight() { RotateWall(1); }
+void CubeHandler::RotateDown()  { RotateWall(4); }
+void CubeHandler::RotateUp()    { RotateWall(5); }
+void CubeHandler::RotateFront() { RotateWall(3); }
+void CubeHandler::RotateBack()  { RotateWall(2); }
 
 
-void CubeSet::Mix()
+void CubeHandler::Mix()
 {
     std::vector<int> wall_indices({0, 1, 2, 3, 4, 5});
     std::vector<std::string> wall_names({"L", "R", "D", "U", "F", "B"});
@@ -169,7 +169,7 @@ void CubeSet::Mix()
     file.close();
 }
 
-void CubeSet::SwapRotationAxis(char dir) { //i think its for the bonus we dont have
+void CubeHandler::SwapRotationAxis(char dir) { //i think its for the bonus we dont have
     int axis = (dir == '^' || dir == 'v') ? 0 : (dir == '<' || dir == '>') ? 1 : 2;
     int start = axis * 2;
     int end = start + 1;
@@ -184,12 +184,12 @@ void CubeSet::SwapRotationAxis(char dir) { //i think its for the bonus we dont h
 }
 
 
-void CubeSet::SetClockWise()
+void CubeHandler::SetClockWise()
 {
     if(ActiveRotations == -1) Clockwise = !Clockwise; 
 }
 
-void CubeSet::Render(glm::mat4 view, glm::mat4 proj)
+void CubeHandler::Render(glm::mat4 view, glm::mat4 proj)
 {
     
     // Change to "if" to enable motion
@@ -211,24 +211,24 @@ void CubeSet::Render(glm::mat4 view, glm::mat4 proj)
 }
 
 
-void CubeSet::Translate(int cube_id, glm::vec3 trans_vec)
+void CubeHandler::Translate(int cube_id, glm::vec3 trans_vec)
 {
     glm::mat3 inverse = glm::transpose(CubeRotationMatrix);
     Cubes[cube_id]->add_translate(inverse * trans_vec);
 }
 
-void CubeSet::RotationCube(int cube_id, float angle, glm::vec3 axis)
+void CubeHandler::RotationCube(int cube_id, float angle, glm::vec3 axis)
 {
     glm::mat3 rot_inverse = glm::transpose(CubeRotationMatrix);
     Cubes[cube_id]->set_rotate(angle, rot_inverse * axis);
 }
 
-void CubeSet::TogglePicking(bool mode)
+void CubeHandler::TogglePicking(bool mode)
 {
     EnableColorPicking = mode;
 }
 
-void CubeSet::Restart()
+void CubeHandler::Restart()
 {
     CubeTranslationMatrix = glm::mat4(1.0f);
     CubeScaleMatrix = glm::mat4(1.0f);
@@ -261,7 +261,7 @@ void CubeSet::Restart()
     }  
 }
 
-void CubeSet::Buffer(glm::mat4 view, glm::mat4 proj)
+void CubeHandler::Buffer(glm::mat4 view, glm::mat4 proj)
 {
     glm::mat4 model = CubeRotationMatrix * CubeTranslationMatrix * CubeScaleMatrix;
     glm::mat4 mvp = proj * view * model;
@@ -273,7 +273,7 @@ void CubeSet::Buffer(glm::mat4 view, glm::mat4 proj)
 
 }
 
-glm::vec3 CubeSet::GetCubePosition(int cubeID) {
+glm::vec3 CubeHandler::GetCubePosition(int cubeID) {
     if (cubeID < 0 || cubeID >= 27) return glm::vec3(0.0f);
 
     // Extract position from transformation matrix
@@ -281,7 +281,7 @@ glm::vec3 CubeSet::GetCubePosition(int cubeID) {
 }
 
 
-bool CubeSet::IdentifyPick()
+bool CubeHandler::IdentifyPick()
 {
     return EnableColorPicking;
 }

@@ -18,7 +18,7 @@
 #include <chrono>
 #include <iostream>
 
-#include <CubeSet.h>
+#include <CubeHandler.h>
 
 /* Window size */
 const unsigned int width = 800;
@@ -166,7 +166,7 @@ int main() {
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
 
-        CubeSet rubik_cube(&shader, &texture, &va);
+        CubeHandler rubik_cube(&shader, &texture, &va);
         va.Unbind();
         vb.Unbind();
         ib.Unbind();

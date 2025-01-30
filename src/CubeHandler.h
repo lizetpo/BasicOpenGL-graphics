@@ -20,7 +20,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-class CubeSet
+class CubeHandler
 {
     private:
         Cube* Cubes[27];   // 3×3×3 = 27 cubes
@@ -48,8 +48,8 @@ class CubeSet
 
 
     public:
-        CubeSet(Shader* shader, Texture* texture, VertexArray* vertexArray);
-        CubeSet() = default;
+        CubeHandler(Shader* shader, Texture* texture, VertexArray* vertexArray);
+        CubeHandler() = default;
 
         void RotateWall(int wall);        
         void SwapRotationAxis(char dir);

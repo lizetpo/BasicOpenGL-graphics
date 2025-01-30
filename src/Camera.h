@@ -12,7 +12,7 @@
 
 #include <Debugger.h>
 #include <Shader.h>
-#include "CubeSet.h"
+#include "CubeHandler.h"
 
 class Camera
 {
@@ -45,7 +45,7 @@ class Camera
     public:
         //color picking
         bool m_ColorPicking = false;
-        CubeSet* m_Cubes;
+        CubeHandler* m_Cubes;
         int m_PickedCube = -1;
         float m_Depth = -1.0f;
 
@@ -60,7 +60,7 @@ class Camera
         float m_MouseSensitivity = 0.05f;
         float m_ScrollSensitivity = 1.0f;
     public:
-        Camera(int width, int height, CubeSet* r_cube)
+        Camera(int width, int height, CubeHandler* r_cube)
             : m_Width(width), m_Height(height), 
                 m_Cubes(r_cube){};
 
