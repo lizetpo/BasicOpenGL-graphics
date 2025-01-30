@@ -192,11 +192,11 @@ int main() {
             
             glfwSwapBuffers(window);
 
-            if(rubik_cube.IdentifyPick()) 
+            if(rubik_cube.EnableColorPicking) 
             {
                 ib.Bind();
                 GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-                rubik_cube.Buffer(view, proj);
+                rubik_cube.ZBuffer(view, proj);
                 ib.Unbind();
             }
 

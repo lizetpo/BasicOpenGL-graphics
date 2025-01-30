@@ -28,16 +28,8 @@ in vec2 v_TexCoord;
 uniform vec4 u_Color;
 uniform sampler2D u_Texture;
 
-
-uniform bool color_picking;
-
 void main()
 {
-    if (color_picking)
-    {
-        FragColor = u_Color;
-        return;
-    }
 	vec4 texColor = texture(u_Texture, v_TexCoord) * u_Color;
 	// gl_FragColor = texColor * v_Color;  // Deprecated
 	FragColor = texColor * v_Color;

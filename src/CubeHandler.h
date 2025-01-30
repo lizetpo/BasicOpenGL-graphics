@@ -22,57 +22,60 @@
 
 class CubeHandler
 {
-    private:
-        Cube* Cubes[27];   // 3×3×3 = 27 cubes
-        int CubeToLocation[3][3][3];
-        std::queue<int> WallRotations;
+    public:
+        int CubePositions[3][3][3];
+        std::queue<int> PendingRotations;
 
         glm::mat4 CubeTranslationMatrix;
-        glm::mat4 CubeRotationMatrix;
         glm::mat4 CubeScaleMatrix;
 
         std::vector<int> totalRotation; 
-        bool Clockwise = true;
-        int RotationAngle = 2;
-        float CurrentRotationAngle = 0.0f;
-        std::vector<int> WallIndices;
+        int Clockwise = 1;
+        float CurrentAngle = 0.0f;
+
+        std::vector<int> Indices;
         int ActiveRotations;
-        double LastFrameTime;
-        bool EnableColorPicking = false;
+		int Angle = 2;
+		int GetAxis(int wall);
+		int GetLayer(int wall);
+		glm::vec3 GetRotationAxis(int wall);
+		void UpdateRotationAngle();
+		void RotateCubes(const std::vector<int>& cubes, glm::vec3 rotationAxis);
+		bool RotationTreshold();
+		void ResetRotation(int wall);
+		void ExecutePendingRotation();
 
         bool CanRotate(int axis);
         void ApplyRotation(int wall);
         void UpdateCubePositions(int axis, int wallIndex);
-        std::vector<int> GetWallCubeIndices(int axis, int wallIndex);
+        std::vector<int> GetWall(int axis, int wallIndex);
         void InitializeWallIndices(int num_of_cubes);
 
 
-    public:
+		Cube* Cubes[27];   // 3×3×3 = 27 cubes
+        glm::mat4 CubeRotationMatrix;
+
         CubeHandler(Shader* shader, Texture* texture, VertexArray* vertexArray);
         CubeHandler() = default;
 
-        void RotateWall(int wall);        
-        void SwapRotationAxis(char dir);
+		bool EnableColorPicking = false;
+
+        void QueueWallRotation(int wall);        
         void SetClockWise();        
         void RotateLeft();
         void RotateRight();
         void RotateDown();
         void RotateUp();
         void RotateFront();
-        void RotateBack();
-        // void Rotate(float angle, glm::vec3 axis);
+        void RotateBack();		
 
-        void Mix();
+        // void Mix();
             
         void Render(glm::mat4 view, glm::mat4 proj);
 
-        // void GetCubePosition(int cubeID);
-        void Translate(int cube_id, glm::vec3 trans_vec);
         void RotationCube(int cube_id, float angle, glm::vec3 axis);
-        void TogglePicking(bool mode);
-        bool IdentifyPick();
         void Restart();
-        void Buffer(glm::mat4 view, glm::mat4 proj);
+        void ZBuffer(glm::mat4 view, glm::mat4 proj);
         glm::vec3 GetCubePosition(int cubeID);
         
 };

@@ -55,7 +55,7 @@ void Camera::ToggleColorPicking()
 {
     m_PickedCube = -1;
     m_ColorPicking = !m_ColorPicking;
-    m_Cubes->TogglePicking(m_ColorPicking);
+    m_Cubes->EnableColorPicking = m_ColorPicking;
 }
 
 void Camera::PickCube(double x, double y) //TODO
@@ -91,7 +91,8 @@ void Camera::ColorPick() {
     translationVector.z = 0.0f; // Ensure the cube doesn't move closer/further
 
     // Apply translation to the cube
-    m_Cubes->Translate(m_PickedCube, translationVector);
+    glm::mat3 inverse = glm::transpose(m_Cubes->CubeRotationMatrix);
+    m_Cubes->Cubes[m_PickedCube]->translateCube(inverse * translationVector);
 }
 
 
@@ -114,29 +115,33 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
         switch (key)
         {
             case GLFW_KEY_UP:
-                camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-                camera->m_Cubes->SwapRotationAxis('^');
+            {
+                glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
+                camera->RotateView((float)12.5 * sensitivity, viewRotateInverse * glm::vec3(1.0f, 0.0f, 0.0f));
+
                 break;
+            }
             case GLFW_KEY_DOWN:
-                camera->TranslateView(glm::vec3(0.0f, sensitivity, 0.0f));
-                camera->m_Cubes->SwapRotationAxis('v');
+            {
+                glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
+                camera->RotateView((float)12.5 * sensitivity, viewRotateInverse * glm::vec3(-1.0f, 0.0f, 0.0f));
+
                 break;
+            }
             case GLFW_KEY_LEFT:
-                camera->TranslateView(glm::vec3(sensitivity, 0.0f, 0.0f));
-                camera->m_Cubes->SwapRotationAxis('<');
+            {
+                glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
+                camera->RotateView((float)12.5 * sensitivity, viewRotateInverse * glm::vec3(0.0f, 1.0f, 0.0f));
+
                 break;
+            }
             case GLFW_KEY_RIGHT:
-                camera->TranslateView(glm::vec3(-sensitivity, 0.0f, 0.0f));
-                camera->m_Cubes->SwapRotationAxis('>');
+            {
+                glm::mat3 viewRotateInverse = glm::transpose(glm::mat3(camera->GetViewMatrix()));
+                camera->RotateView((float)12.5 * sensitivity, viewRotateInverse * glm::vec3(0.0f, -1.0f, 0.0f));
+
                 break;
-            case GLFW_KEY_I:
-                camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-                camera->m_Cubes->SwapRotationAxis('I');
-                break;
-            case GLFW_KEY_O:
-                camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-                camera->m_Cubes->SwapRotationAxis('O');
-                break;
+            }
             case GLFW_KEY_R:
                 camera->m_Cubes->RotateRight(); // Right
                 break;
@@ -155,18 +160,15 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
             case GLFW_KEY_F:
                 camera->m_Cubes->RotateFront(); // Front
                 break;
-            // case GLFW_KEY_SPACE:
-            //     camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-            //     camera->swap_clockwise();
-            //     break;
-            // case GLFW_KEY_Z:
-            //     camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-            //     camera->set_degree(0.5f);
-            //     break;
-            // case GLFW_KEY_A:
-            //     camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-            //     camera->set_degree(2.0f);
-            //     break;
+            case GLFW_KEY_SPACE:
+                camera->m_Cubes->SetClockWise();
+                break;
+            case GLFW_KEY_Z:
+                camera->m_Cubes->Angle = glm::clamp((int) (camera->m_Cubes->Angle/2), 1, 4);;                 
+                break;
+            case GLFW_KEY_A:
+                camera->m_Cubes->Angle = glm::clamp((int) (camera->m_Cubes->Angle*2), 1, 4);;                 
+                break;
             // case GLFW_KEY_M:
             //     camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
             //     camera->mix();
