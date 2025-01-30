@@ -4,47 +4,40 @@
 #include <cstdlib>
 #include <glm/gtc/matrix_transform.hpp>
 
-CubeSet::CubeSet(int numCubes, Shader* shader, Texture* texture, VertexArray* vertexArray) 
+CubeSet::CubeSet(Shader* shader, Texture* texture, VertexArray* vertexArray) 
     : CubeTranslationMatrix(glm::mat4(1.0f)),
       CubeRotationMatrix(glm::mat4(1.0f)),
       CubeScaleMatrix(glm::mat4(0.5f)),
       ActiveRotations(-1),
       LastFrameTime(0.0)
 {
-    CubeToLocation.resize(numCubes, std::vector<std::vector<int>>(numCubes, std::vector<int>(numCubes)));
-    Cubes.resize(numCubes * numCubes * numCubes);
-    
     int cube_id = 0;
-    glm::vec3 offset = (numCubes % 2 == 1) ? glm::vec3(0.0f) : glm::vec3(0.5f);
     
-    for(int i = 0; i < numCubes; ++i) {
-        for(int j = 0; j < numCubes; ++j) {
-            for(int k = 0; k < numCubes; ++k) {
-                glm::vec3 position(2.0f * (k - numCubes / 2), 2.0f * (j - numCubes / 2), 2.0f * (i - numCubes / 2));
-                glm::mat4 translation = glm::translate(glm::mat4(1.0f), position + offset);
+    for(int i = 0; i < 3; ++i) {
+        for(int j = 0; j < 3; ++j) {
+            for(int k = 0; k < 3; ++k) {
+                glm::vec3 position(2.0f * (k - 3 / 2), 2.0f * (j - 3 / 2), 2.0f * (i - 3 / 2));
+                glm::mat4 translation = glm::translate(glm::mat4(1.0f), position + glm::vec3(0.0f));
                 Cubes[cube_id] = new Cube(cube_id, shader, texture, translation, vertexArray);
                 CubeToLocation[i][j][k] = cube_id++;
             }
         }
     }
     
-    totalRotation.resize(numCubes * numCubes, 0);
+    totalRotation.resize(3 * 3, 0);
     for(int d = 0; d < 3; ++d) {
-        WallIndices.push_back(d * numCubes);
-        WallIndices.push_back(d * numCubes + numCubes - 1);
+        WallIndices.push_back(d * 3);
+        WallIndices.push_back(d * 3 + 3 - 1);
     }
 }
 
-std::vector<int> CubeSet::GetWallCubeIndices(int wall) {
-    int cubesNum = CubeToLocation.size();
-    int axis = wall / cubesNum;
-    int wallIndex = wall % cubesNum;
+std::vector<int> CubeSet::GetWallCubeIndices(int axis, int wallIndex) {
     
     std::vector<int> wallIndices;
-    wallIndices.reserve(cubesNum * cubesNum);
+    wallIndices.reserve(3 * 3);
     
-    for (int i = 0; i < cubesNum; ++i) {
-        for (int j = 0; j < cubesNum; ++j) {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
             wallIndices.push_back(
                 (axis == 0) ? CubeToLocation[i][j][wallIndex] :
                 (axis == 1) ? CubeToLocation[wallIndex][i][j] :
@@ -55,14 +48,12 @@ std::vector<int> CubeSet::GetWallCubeIndices(int wall) {
     return wallIndices;
 }
 
-bool CubeSet::CanRotate(int wall) {
-    int numCubes = CubeToLocation.size();
-    int wallAxis = wall / numCubes;
+bool CubeSet::CanRotate(int axis) {
     
     for(int d = 0; d < 3; ++d) {
-        if(d == wallAxis) continue;
-        for(int i = 0; i < numCubes; ++i) {
-            if(totalRotation[d * numCubes + i] % 2 == 1) return false;
+        if(d == axis) continue;
+        for(int i = 0; i < 3; ++i) {
+            if(totalRotation[d * 3 + i] % 2 == 1) return false;
         }
     }
     return true;
@@ -70,11 +61,11 @@ bool CubeSet::CanRotate(int wall) {
 
 void CubeSet::ApplyRotation(int wall) {
     if(ActiveRotations != -1) {
-        std::vector<int> indices = GetWallCubeIndices(wall);
+        std::vector<int> indices = GetWallCubeIndices(wall/3, wall%3);
         CurrentRotationAngle += (Clockwise ? 1.0f : -1.0f);
 
-        glm::vec3 rotationAxis = (wall < CubeToLocation.size()) ? glm::vec3(1, 0, 0) :
-                                 (wall < 2 * CubeToLocation.size()) ? glm::vec3(0, 0, 1) :
+        glm::vec3 rotationAxis = (wall < 3) ? glm::vec3(1, 0, 0) :
+                                 (wall < 2 * 3) ? glm::vec3(0, 0, 1) :
                                  glm::vec3(0, 1, 0);
         
         for(int i : indices) {
@@ -85,14 +76,14 @@ void CubeSet::ApplyRotation(int wall) {
             ActiveRotations = -1;
             CurrentRotationAngle = 0.0f;
             if(totalRotation[wall] % 2 == 0) {
-                UpdateCubePositions(wall);
+                UpdateCubePositions(wall/3, wall%3);
                 totalRotation[wall] = 0; 
             }
         }
     }
     
     if(ActiveRotations == -1 && !WallRotations.empty()) {
-        if(CanRotate(WallRotations.front())) {
+        if(CanRotate(WallRotations.front()/3)) {
             ActiveRotations = WallRotations.front();
             totalRotation[ActiveRotations]++;
         }
@@ -100,12 +91,8 @@ void CubeSet::ApplyRotation(int wall) {
     }
 }
 
-void CubeSet::UpdateCubePositions(int wall) {
-    int numCubes = CubeToLocation.size();
-    int axis = wall / numCubes;
-    int wallIndex = wall % numCubes;
+void CubeSet::UpdateCubePositions(int axis, int wallIndex) {
 
-    // Lambda function to get a reference to the cube index
     auto getIndex = [&](int i, int j) -> int& {
         switch (axis) {
             case 0: return CubeToLocation[i][j][wallIndex]; // X-axis
@@ -116,20 +103,20 @@ void CubeSet::UpdateCubePositions(int wall) {
     };
 
     // **In-place rotation using 4-way swaps**
-    for (int i = 0; i < numCubes / 2; ++i) {
-        for (int j = i; j < numCubes - i - 1; ++j) {
+    for (int i = 0; i < 3 / 2; ++i) {
+        for (int j = i; j < 3 - i - 1; ++j) {
             int temp = getIndex(i, j);
 
             if (Clockwise) {
-                getIndex(i, j) = getIndex(numCubes - 1 - j, i);
-                getIndex(numCubes - 1 - j, i) = getIndex(numCubes - 1 - i, numCubes - 1 - j);
-                getIndex(numCubes - 1 - i, numCubes - 1 - j) = getIndex(j, numCubes - 1 - i);
-                getIndex(j, numCubes - 1 - i) = temp;
+                getIndex(i, j) = getIndex(2 - j, i);
+                getIndex(2 - j, i) = getIndex(2 - i, 2 - j);
+                getIndex(2 - i, 2 - j) = getIndex(j, 2 - i);
+                getIndex(j, 2 - i) = temp;
             } else {
-                getIndex(i, j) = getIndex(j, numCubes - 1 - i);
-                getIndex(j, numCubes - 1 - i) = getIndex(numCubes - 1 - i, numCubes - 1 - j);
-                getIndex(numCubes - 1 - i, numCubes - 1 - j) = getIndex(numCubes - 1 - j, i);
-                getIndex(numCubes - 1 - j, i) = temp;
+                getIndex(i, j) = getIndex(j, 2 - i);
+                getIndex(j, 2 - i) = getIndex(2 - i, 2 - j);
+                getIndex(2 - i, 2 - j) = getIndex(2 - j, i);
+                getIndex(2 - j, i) = temp;
             }
         }
     }
@@ -141,7 +128,7 @@ void CubeSet::RotateWall(int wall)
 {
     wall = WallIndices[wall];
 
-    if (CanRotate(wall))
+    if (CanRotate(wall/3))
     {
         for(int i = 0; i < RotationAngle; i++)
         {
@@ -182,18 +169,12 @@ void CubeSet::Mix()
     file.close();
 }
 
-void CubeSet::Rotate(float angle, glm::vec3 axis)
-{
-    CubeRotationMatrix = glm::rotate(glm::mat4(1.0f), angle, axis) * CubeRotationMatrix;
-}
-
-void CubeSet::SwapRotationAxis(char dir) {
-    int numCubes = CubeToLocation.size();
+void CubeSet::SwapRotationAxis(char dir) { //i think its for the bonus we dont have
     int axis = (dir == '^' || dir == 'v') ? 0 : (dir == '<' || dir == '>') ? 1 : 2;
     int start = axis * 2;
     int end = start + 1;
 
-    if ((dir == '^' || dir == '<' || dir == 'I') && WallIndices[start] % numCubes > 0 && WallIndices[end] % numCubes < numCubes - 1) {
+    if ((dir == '^' || dir == '<' || dir == 'I') && WallIndices[start] % 3 > 0 && WallIndices[end] % 3 < 3 - 1) {
         WallIndices[start]--;
         WallIndices[end]++;
     } else if ((dir == 'v' || dir == '>' || dir == 'O') && WallIndices[end] - WallIndices[start] > 1) {
@@ -208,23 +189,14 @@ void CubeSet::SetClockWise()
     if(ActiveRotations == -1) Clockwise = !Clockwise; 
 }
 
-void CubeSet::Render(glm::mat4 view, glm::mat4 proj, double frame_time)
+void CubeSet::Render(glm::mat4 view, glm::mat4 proj)
 {
-    /*        Motion    - start        */
-    double delta_time = frame_time - LastFrameTime;
-
-    while (delta_time >= (1.0f / 120.0f)) 
+    
+    // Change to "if" to enable motion
+    while (ActiveRotations != -1 || !WallRotations.empty()) 
     {
-        // Change to "while" to disable motion
-        if (ActiveRotations != -1 || !WallRotations.empty()) 
-        {
-            ApplyRotation(ActiveRotations);
-        }
-        delta_time -= (1.0f / 120.0f);
+        ApplyRotation(ActiveRotations);
     }
-
-    LastFrameTime = frame_time - delta_time; 
-    /*        Motion    - end          */
 
     glm::mat4 model = CubeRotationMatrix * CubeTranslationMatrix * CubeScaleMatrix;
 
@@ -267,17 +239,15 @@ void CubeSet::Restart()
 
     for(int i = 0; i<3; i++)
     {
-        CubeToLocation[i].resize(3);
         int y = -3 / 2;
 
         for(int j = 0; j<3; j++)
         {
-            CubeToLocation[i][j].resize(3);
             int x = -3 / 2;
 
             for(int k = 0; k<3; k++)
             {
-                glm::vec3 offset = CubeToLocation.size() % 2 == 1 ? glm::vec3(0.0f) : glm::vec3(0.5f);
+                glm::vec3 offset = 3 % 2 == 1 ? glm::vec3(0.0f) : glm::vec3(0.5f);
                 glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f * x, 2.0f * y, 2.0f * z) + offset);  
                 Cubes[cube_id]->set_transform(translation, glm::mat4(1.0f));
                 CubeToLocation[i][j][k] = cube_id;
@@ -304,7 +274,7 @@ void CubeSet::Buffer(glm::mat4 view, glm::mat4 proj)
 }
 
 glm::vec3 CubeSet::GetCubePosition(int cubeID) {
-    if (cubeID < 0 || cubeID >= Cubes.size()) return glm::vec3(0.0f);
+    if (cubeID < 0 || cubeID >= 27) return glm::vec3(0.0f);
 
     // Extract position from transformation matrix
     return glm::vec3(Cubes[cubeID]->GetTransform()[3]); 

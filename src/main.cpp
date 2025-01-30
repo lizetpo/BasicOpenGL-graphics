@@ -166,7 +166,7 @@ int main() {
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
 
-        CubeSet rubik_cube(3, &shader, &texture, &va);
+        CubeSet rubik_cube(&shader, &texture, &va);
         va.Unbind();
         vb.Unbind();
         ib.Unbind();
@@ -186,7 +186,7 @@ int main() {
             glm::mat4 proj = camera.GetProjectionMatrix();
             
             ib.Bind();
-            rubik_cube.Render(view, proj, glfwGetTime());
+            rubik_cube.Render(view, proj);
             ib.Unbind();
             
             

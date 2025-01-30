@@ -41,7 +41,6 @@ void Cube::render_back_buffer(glm::mat4 mvp)
     
     cubeTexture->Bind(0);
     shader->Bind();
-    shader->SetUniform1i("u_PickingMode", 1);
     shader->SetUniform4f("u_Color", color);
     shader->SetUniformMat4f("u_MVP", draw_mvp);
 
