@@ -58,7 +58,7 @@ bool CubeHandler::CanRotate(int axis) {
     return true;
 }
 
-void CubeHandler::ApplyRotation(int wall) {
+void CubeHandler::ProcessCubeRotation(int wall) {
     if (ActiveRotations != -1) {
         // Get affected cube indices
         std::vector<int> affectedCubes = GetWall(GetAxis(wall), GetLayer(wall));
@@ -66,7 +66,7 @@ void CubeHandler::ApplyRotation(int wall) {
         // Increment rotation angle
         UpdateRotationAngle();
 
-        // Get rotation axis based on wall index
+        // Get rotation axis based on wall
         glm::vec3 rotationAxis = GetRotationAxis(wall);
 
         // Apply rotation to each cube in the affected layer
@@ -149,31 +149,6 @@ void CubeHandler::QueueWallRotation(int wall)
 }
 
 
-
-// void CubeHandler::Mix()
-// {
-//     std::vector<int> wall_indices({0, 1, 2, 3, 4, 5});
-//     std::vector<std::string> wall_names({"L", "R", "D", "U", "F", "B"});
-
-//     std::ofstream file("mixer.txt");
-//     if (!file.is_open())
-//     {
-//         std::cerr << "Error: Unable to open output file.\n";
-//         return;
-//     }
-
-
-//     for(int i = 0; i < 30; i++)
-//     {
-//         int wall_i = std::rand() % wall_indices.size();
-//         RotateWall(wall_indices[wall_i]);
-
-//         file << "(" << wall_names[wall_indices[wall_i]] << ")\n";
-//     }
-
-//     file.close();
-// }
-
 void CubeHandler::SetClockWise()
 {
     if(ActiveRotations == -1){
@@ -192,7 +167,7 @@ void CubeHandler::Render(glm::mat4 view, glm::mat4 proj)
     // Change to "if" to enable motion
     if (ActiveRotations != -1 || !PendingRotations.empty()) 
     {
-        ApplyRotation(ActiveRotations);
+        ProcessCubeRotation(ActiveRotations);
     }
 
     glm::mat4 model = CubeRotationMatrix * CubeTranslationMatrix * CubeScaleMatrix;
@@ -205,6 +180,30 @@ void CubeHandler::Render(glm::mat4 view, glm::mat4 proj)
     }
 
 
+}
+
+void CubeHandler::Mix()
+{
+    std::ofstream file("mixer.txt");
+    if (file.is_open())
+    {
+        for (int i = 0; i < 15; i++)
+        {
+            int wall = rand() % 6;
+
+            switch (wall) {
+                case 0: RotateLeft(); break;
+                case 1: RotateRight(); break;
+                case 2: RotateDown(); break;
+                case 3: RotateUp(); break;
+                case 4: RotateFront(); break;
+                case 5: RotateBack(); break;
+            }
+            file << wall << " " << std::endl;
+            
+        }
+        file.close();
+    }    
 }
 
 void CubeHandler::RotationCube(int index, float angle, glm::vec3 axis)
@@ -296,7 +295,7 @@ void CubeHandler::UpdateRotationAngle() {
 // Rotates all affected cubes in the wall
 void CubeHandler::RotateCubes(const std::vector<int>& cubes, glm::vec3 rotationAxis) {
     for (int i : cubes) {
-        Cubes[i]->rotateCube(glm::radians(Clockwise), rotationAxis);
+        Cubes[i]->rotateCube(glm::radians((float)Clockwise), rotationAxis);
     }
 }
 

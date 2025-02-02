@@ -166,14 +166,14 @@ int main() {
         Shader shader("res/shaders/basic.shader");
         shader.Bind();
 
-        CubeHandler rubik_cube(&shader, &texture, &va);
+        CubeHandler cubes(&shader, &texture, &va);
         va.Unbind();
         vb.Unbind();
         ib.Unbind();
         shader.Unbind();
 
         GLCall(glEnable(GL_DEPTH_TEST));
-        Camera camera(width, height, &rubik_cube);
+        Camera camera(width, height, &cubes);
         camera.SetPerspective(near,far);
         camera.EnableInputs(window);
 
@@ -186,17 +186,17 @@ int main() {
             glm::mat4 proj = camera.GetProjectionMatrix();
             
             ib.Bind();
-            rubik_cube.Render(view, proj);
+            cubes.Render(view, proj);
             ib.Unbind();
             
             
             glfwSwapBuffers(window);
 
-            if(rubik_cube.EnableColorPicking) 
+            if(cubes.EnableColorPicking) 
             {
                 ib.Bind();
                 GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-                rubik_cube.ZBuffer(view, proj);
+                cubes.ZBuffer(view, proj);
                 ib.Unbind();
             }
 

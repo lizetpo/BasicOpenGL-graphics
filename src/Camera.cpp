@@ -169,17 +169,15 @@ void KeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods
             case GLFW_KEY_A:
                 camera->m_Cubes->Angle = glm::clamp((int) (camera->m_Cubes->Angle*2), 1, 4);;                 
                 break;
-            // case GLFW_KEY_M:
-            //     camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-            //     camera->mix();
-            //     break;
+            case GLFW_KEY_M:
+                camera->m_Cubes->Mix();
+                break;
             case GLFW_KEY_P:
                 camera->ToggleColorPicking();
                 break;
-            // case GLFW_KEY_Q:
-            //     camera->TranslateView(glm::vec3(0.0f, -sensitivity, 0.0f));
-            //     camera->clean_start();
-            //     break;
+            case GLFW_KEY_Q:
+                camera->m_Cubes->Restart();
+                break;
             default:
                 break;
         }

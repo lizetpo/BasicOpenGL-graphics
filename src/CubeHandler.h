@@ -23,16 +23,12 @@
 class CubeHandler
 {
     public:
-        int CubePositions[3][3][3];
-        std::queue<int> PendingRotations;
 
         glm::mat4 CubeTranslationMatrix;
         glm::mat4 CubeScaleMatrix;
-
         std::vector<int> totalRotation; 
         int Clockwise = 1;
         float CurrentAngle = 0.0f;
-
         std::vector<int> Indices;
         int ActiveRotations;
 		int Angle = 2;
@@ -44,22 +40,17 @@ class CubeHandler
 		bool RotationTreshold();
 		void ResetRotation(int wall);
 		void ExecutePendingRotation();
-
         bool CanRotate(int axis);
-        void ApplyRotation(int wall);
         void UpdateCubePositions(int axis, int wallIndex);
         std::vector<int> GetWall(int axis, int wallIndex);
-        void InitializeWallIndices(int num_of_cubes);
-
-
+        void ProcessCubeRotation(int wall);
 		Cube* Cubes[27];   // 3×3×3 = 27 cubes
+        int CubePositions[3][3][3];
+        std::queue<int> PendingRotations;
         glm::mat4 CubeRotationMatrix;
-
         CubeHandler(Shader* shader, Texture* texture, VertexArray* vertexArray);
         CubeHandler() = default;
-
 		bool EnableColorPicking = false;
-
         void QueueWallRotation(int wall);        
         void SetClockWise();        
         void RotateLeft();
@@ -67,15 +58,11 @@ class CubeHandler
         void RotateDown();
         void RotateUp();
         void RotateFront();
-        void RotateBack();		
-
-        // void Mix();
-            
+        void RotateBack();		        
         void Render(glm::mat4 view, glm::mat4 proj);
-
         void RotationCube(int cube_id, float angle, glm::vec3 axis);
         void Restart();
         void ZBuffer(glm::mat4 view, glm::mat4 proj);
         glm::vec3 GetCubePosition(int cubeID);
-        
+        void Mix();
 };
