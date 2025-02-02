@@ -175,6 +175,7 @@ int main() {
         GLCall(glEnable(GL_DEPTH_TEST));
         Camera camera(width, height, &cubes);
         camera.SetPerspective(near,far);
+        camera.TranslateProjection(glm::vec3(0.0f, 0.0f, -20.0f));
         camera.EnableInputs(window);
 
     while (!glfwWindowShouldClose(window)) {
